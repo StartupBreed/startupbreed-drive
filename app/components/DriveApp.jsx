@@ -8,6 +8,7 @@ import PositionTable from './PositionTable';
 import Breadcrumb from './Breadcrumb';
 import Dashboard from './Dashboard';
 import EmployeeTable from './EmployeeTable';
+import PositionDetailCard from './PositionDetailCard';
 
 const ROOT_ID = '1dOAe4OwsWtgm0x3l2mZzKsZcK1iR3RuA';
 
@@ -42,7 +43,13 @@ export default function DriveApp({ session }) {
   }, [currentFolder.id, fetchFiles]);
 
   const openFolder = (folder) => {
-    setBreadcrumb((prev) => [...prev, { id: folder.id, name: folder.name }]);
+    setBreadcrumb((prev) => [...prev, { id: folder.id, name: folder.name, properties: folder.properties || {} }]);
+  };
+
+  const handlePositionUpdated = (updated) => {
+    setBreadcrumb((prev) => prev.map((item) =>
+      item.id === updated.id ? { ...item, name: updated.name, properties: updated.properties } : item
+    ));
   };
 
   const navigateTo = (index) => {
@@ -115,19 +122,28 @@ export default function DriveApp({ session }) {
         />
       );
     }
+    const positionFolder = breadcrumb[2];
     return (
-      <FileList
-        files={files}
-        loading={loading}
-        onOpenFolder={openFolder}
-        onDelete={handleDelete}
-        onDownload={handleDownload}
-      />
+      <>
+        {positionFolder && (
+          <PositionDetailCard
+            folder={positionFolder}
+            onUpdated={handlePositionUpdated}
+          />
+        )}
+        <FileList
+          files={files}
+          loading={loading}
+          onOpenFolder={openFolder}
+          onDelete={handleDelete}
+          onDownload={handleDownload}
+        />
+      </>
     );
   };
 
   const pageTitle = depth === 0 ? 'Clients' : depth === 1 ? currentFolder.name : currentFolder.name;
-  const pageSubtitle = depth === 0 ? 'All client accounts' : depth === 1 ? 'Positions' : 'Files';
+  const pageSubtitle = depth === 0 ? 'All client accounts' : depth === 1 ? 'Positions' : 'Position files';
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
