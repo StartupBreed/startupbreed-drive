@@ -11,19 +11,6 @@ export default function Toolbar({ onCreateFolder, onUpload, onRefresh, depth = 0
   const fileInputRef = useRef(null);
   const importInputRef = useRef(null);
 
-  const [migrating, setMigrating] = useState(false);
-  const [migrateDone, setMigrateDone] = useState(false);
-
-  const handleMigrateSalary = async () => {
-    setMigrating(true);
-    const res = await fetch('/api/drive/migrate-salary', { method: 'POST' });
-    const data = await res.json();
-    setMigrating(false);
-    setMigrateDone(true);
-    alert(`Done! Updated ${data.updated} positions, skipped ${data.skipped}.`);
-    onRefresh();
-  };
-
   const handleImportFile = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -129,13 +116,6 @@ export default function Toolbar({ onCreateFolder, onUpload, onRefresh, depth = 0
             className="hidden"
             onChange={handleImportFile}
           />
-
-          {/* One-time salary format migration — hides after done */}
-          {!migrateDone && (
-            <button onClick={handleMigrateSalary} disabled={migrating} className="btn-secondary text-amber-600 border-amber-200 hover:bg-amber-50">
-              {migrating ? 'Fixing…' : 'Fix salary format'}
-            </button>
-          )}
 
           {/* Help tooltip */}
           <div className="relative group">
