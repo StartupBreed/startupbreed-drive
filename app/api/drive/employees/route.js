@@ -3,12 +3,12 @@ import { google } from 'googleapis';
 import { Readable } from 'stream';
 import { authOptions } from '../../auth/[...nextauth]/route';
 
-const FILE_NAME = 'employees.json';
+const ROOT_ID = '1dOAe4OwsWtgm0x3l2mZzKsZcK1iR3RuA';
+const FILE_NAME = '__employees_data__';
 
 async function getOrCreateFile(drive) {
   const search = await drive.files.list({
-    spaces: 'appDataFolder',
-    q: `name = '${FILE_NAME}' and trashed = false`,
+    q: `name = '${FILE_NAME}' and '${ROOT_ID}' in parents and trashed = false`,
     fields: 'files(id)',
   });
 
@@ -17,7 +17,7 @@ async function getOrCreateFile(drive) {
   const created = await drive.files.create({
     requestBody: {
       name: FILE_NAME,
-      parents: ['appDataFolder'],
+      parents: [ROOT_ID],
       mimeType: 'application/json',
     },
     media: { mimeType: 'application/json', body: Readable.from('[]') },

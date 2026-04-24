@@ -15,7 +15,7 @@ export async function GET(request) {
 
   try {
     const res = await drive.files.list({
-      q: `'${folderId}' in parents and trashed = false`,
+      q: `'${folderId}' in parents and trashed = false and name != '__employees_data__'`,
       fields: 'files(id, name, mimeType, size, modifiedTime, parents, properties)',
       orderBy: 'folder,name',
       pageSize: 200,
