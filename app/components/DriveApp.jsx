@@ -109,6 +109,7 @@ export default function DriveApp({ session }) {
           loading={loading}
           onOpenFolder={openFolder}
           onDelete={handleDelete}
+          onRefresh={() => fetchFiles(currentFolder.id)}
         />
       );
     }
