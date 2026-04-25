@@ -157,7 +157,7 @@ export async function POST(request) {
   let parsed;
   try {
     const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-6',
+      model: 'claude-haiku-4-5-20251001',
       max_tokens: 8000,
       system: 'You are an expert recruitment consultant at a professional headhunting firm. Generate detailed, professional recruitment documents. Always return a single valid JSON object with keys "clientIntake", "preHunt", "jobDescription". No markdown, no explanation outside the JSON.',
       messages: [{ role: 'user', content: buildPrompt(body) }],
