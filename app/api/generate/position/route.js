@@ -2,7 +2,7 @@ import { getServerSession } from 'next-auth';
 import { google } from 'googleapis';
 import Anthropic from '@anthropic-ai/sdk';
 import { Readable } from 'stream';
-import { authOptions } from '../../../../auth/[...nextauth]/route';
+import { authOptions } from '../../auth/[...nextauth]/route';
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
