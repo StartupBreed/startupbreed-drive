@@ -86,8 +86,8 @@ function buildPreHuntHTML({ positionName, companyName, seniority, salaryRange, d
   const lbl = `padding:11px 14px;border:1px solid #000;width:32%;vertical-align:top;line-height:1.55;color:#000;background:#F7F7F7;${P}font-size:10pt;`;
   const val = `padding:11px 14px;border:1px solid #000;vertical-align:top;line-height:1.55;color:#000;${P}font-size:10pt;`;
   const th  = `padding:10px 14px;border:1px solid #000;vertical-align:middle;line-height:1.4;color:#000;font-weight:600;background:#F7F7F7;${P}font-size:10pt;`;
-  const h2  = `color:#424495;font-weight:600;font-size:10pt;margin:28px 0 3px 0;${P}`;
-  const div = '<hr style="border:none;border-top:1.5px solid #a0a0a0;margin:3px 0 10px 0;">';
+  const h2  = `color:#424495;font-weight:600;font-size:10pt;margin:28px 0 1px 0;${P}`;
+  const div = '<hr style="border:none;border-top:1.5px solid #a0a0a0;margin:0 0 10px 0;">';
   const tbc = '<span style="color:#aaa;font-style:italic;">To be confirmed</span>';
 
   const row = (label, value) => `
@@ -118,7 +118,7 @@ function buildPreHuntHTML({ positionName, companyName, seniority, salaryRange, d
 </head>
 <body style="${P}font-size:10pt;margin:48px 56px;color:#000;line-height:1.55;">
 
-<h1 style="font-size:15pt;font-weight:600;color:#424495;margin:0 0 6px 0;${P}">Position Name: ${positionName}</h1>
+<h1 style="font-size:15pt;font-weight:600;color:#424495;margin:0 0 1px 0;${P}">Position Name: ${positionName}</h1>
 ${div}
 <p style="margin:5px 0;${P}font-size:10pt;">Company: &nbsp;<strong>${companyName}</strong></p>
 <p style="margin:5px 0 18px 0;${P}font-size:10pt;">Company Intake: &nbsp;See Client Intake_ ${companyName}</p>
@@ -237,7 +237,7 @@ ${div}
 function buildJDHTML({ positionName, companyName, data }) {
   const P = "font-family:'Poppins',Arial,sans-serif;";
   const h2 = `color:#424495;font-weight:600;font-size:10pt;margin:28px 0 3px 0;${P}`;
-  const div = '<hr style="border:none;border-top:1.5px solid #a0a0a0;margin:3px 0 10px 0;">';
+  const div = '<hr style="border:none;border-top:1.5px solid #a0a0a0;margin:0 0 10px 0;">';
   const body = `margin:0 0 14px 0;line-height:1.65;color:#000;${P}font-size:10pt;`;
 
   const bullets = (arr) =>
@@ -251,7 +251,7 @@ function buildJDHTML({ positionName, companyName, data }) {
 </head>
 <body style="${P}font-size:10pt;margin:48px 56px;color:#000;line-height:1.55;">
 
-<h1 style="font-size:15pt;font-weight:600;color:#424495;margin:0 0 6px 0;${P}">${companyName}: ${positionName}</h1>
+<h1 style="font-size:15pt;font-weight:600;color:#424495;margin:0 0 1px 0;${P}">${companyName}: ${positionName}</h1>
 ${div}
 
 <h2 style="${h2}">About the Company</h2>

@@ -48,8 +48,8 @@ function buildHTML({ companyName, website, linkedin, date, data }) {
   const tblStyle = `width:100%;border-collapse:collapse;margin-bottom:20px;font-size:10pt;`;
   const lbl = `padding:11px 14px;border:1px solid #000;width:32%;vertical-align:top;line-height:1.55;color:#000;background:#F7F7F7;${P}font-size:10pt;`;
   const val = `padding:11px 14px;border:1px solid #000;vertical-align:top;line-height:1.55;color:#000;${P}font-size:10pt;`;
-  const h2  = `color:#424495;font-weight:600;font-size:10pt;margin:28px 0 3px 0;${P}`;
-  const div = '<hr style="border:none;border-top:1.5px solid #a0a0a0;margin:3px 0 10px 0;">';
+  const h2  = `color:#424495;font-weight:600;font-size:10pt;margin:28px 0 1px 0;${P}`;
+  const div = '<hr style="border:none;border-top:1.5px solid #a0a0a0;margin:0 0 10px 0;">';
 
   const row = (label, value) => `
     <tr>
@@ -68,7 +68,7 @@ function buildHTML({ companyName, website, linkedin, date, data }) {
 </head>
 <body style="${P}font-size:10pt;margin:48px 56px;color:#000;line-height:1.55;">
 
-<h1 style="font-size:15pt;font-weight:600;color:#424495;margin:0 0 6px 0;${P}">Company Name: ${companyName}</h1>
+<h1 style="font-size:15pt;font-weight:600;color:#424495;margin:0 0 1px 0;${P}">Company Name: ${companyName}</h1>
 ${div}
 <p style="margin:5px 0;${P}font-size:10pt;">Intake by: &nbsp;${data.intakeBy || 'StartupBreed'}</p>
 <p style="margin:5px 0 18px 0;${P}font-size:10pt;">Date: &nbsp;${date}</p>
