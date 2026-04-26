@@ -81,54 +81,61 @@ Generate 3-4 generalQuestions, 5-7 specificQuestions, and 3-4 compensationQuesti
 }
 
 function buildPreHuntHTML({ positionName, companyName, seniority, salaryRange, data }) {
-  const poppins = "font-family:'Poppins',Arial,sans-serif;";
-  const tableStyle = `width:100%;border-collapse:collapse;margin-bottom:8px;font-size:10pt;`;
-  const labelStyle = `padding:10px 14px;border:1px solid #000;width:32%;vertical-align:top;color:#000;background:#F7F7F7;${poppins}font-size:10pt;`;
-  const valueStyle = `padding:10px 14px;border:1px solid #000;vertical-align:top;color:#000;${poppins}font-size:10pt;`;
-  const thStyle = `padding:10px 14px;border:1px solid #000;vertical-align:top;color:#000;font-weight:600;background:#F7F7F7;${poppins}font-size:10pt;`;
-  const h2Style = `color:#424495;font-weight:600;font-size:10pt;margin:24px 0 2px 0;${poppins}`;
-  const divider = '<hr style="border:none;border-top:1.5px solid #a0a0a0;margin:4px 0 10px 0;">';
-  const tbc = '<span style="color:#aaa">To be confirmed</span>';
+  const P = "font-family:'Poppins',Arial,sans-serif;";
+  const tblStyle = `width:100%;border-collapse:collapse;margin-bottom:20px;font-size:10pt;`;
+  const lbl = `padding:11px 14px;border:1px solid #000;width:32%;vertical-align:top;line-height:1.55;color:#000;background:#F7F7F7;${P}font-size:10pt;`;
+  const val = `padding:11px 14px;border:1px solid #000;vertical-align:top;line-height:1.55;color:#000;${P}font-size:10pt;`;
+  const th  = `padding:10px 14px;border:1px solid #000;vertical-align:middle;line-height:1.4;color:#000;font-weight:600;background:#F7F7F7;${P}font-size:10pt;`;
+  const h2  = `color:#424495;font-weight:600;font-size:10pt;margin:28px 0 3px 0;${P}`;
+  const div = '<hr style="border:none;border-top:1.5px solid #a0a0a0;margin:3px 0 10px 0;">';
+  const tbc = '<span style="color:#aaa;font-style:italic;">To be confirmed</span>';
 
   const row = (label, value) => `
     <tr>
-      <td style="${labelStyle}">${label}</td>
-      <td style="${valueStyle}">${value || tbc}</td>
+      <td style="${lbl}">${label}</td>
+      <td style="${val}">${value || tbc}</td>
     </tr>`;
 
-  const bullets = (arr) => (arr || []).map(item => `• &nbsp;${item}`).join('<br>');
+  const bullets = (arr) =>
+    `<ul style="margin:0;padding-left:18px;">${(arr || []).map(item =>
+      `<li style="margin-bottom:5px;line-height:1.55;">${item}</li>`).join('')}</ul>`;
 
   const qaRows = (questions) => (questions || []).map(({ q, a }) => `
     <tr>
-      <td style="${valueStyle}">${q}</td>
-      <td style="${valueStyle}">${a}</td>
+      <td style="${val}vertical-align:top;">${q}</td>
+      <td style="${val}vertical-align:top;color:#444;">${a}</td>
     </tr>`).join('');
 
-  const categoryRow = (label) => `
+  const catRow = (label) => `
     <tr>
-      <td colspan="2" style="font-weight:600;padding:8px 14px;border:1px solid #000;color:#000;background:#F7F7F7;${poppins}font-size:10pt;">${label}</td>
+      <td colspan="2" style="font-weight:600;padding:8px 14px;border:1px solid #000;color:#424495;background:#F7F7F7;${P}font-size:10pt;">${label}</td>
     </tr>`;
 
-  return `<!DOCTYPE html><html><head><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"></head><body style="${poppins}font-size:10pt;margin:40px 48px;color:#000;">
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body style="${P}font-size:10pt;margin:48px 56px;color:#000;line-height:1.55;">
 
-<h1 style="font-size:15pt;font-weight:600;color:#424495;margin-bottom:4px;${poppins}">Position Name: ${positionName}</h1>
-${divider}
-<p style="margin:6px 0;${poppins}font-size:10pt;">Company: &nbsp;<strong>${companyName}</strong></p>
-<p style="margin:6px 0 16px 0;${poppins}font-size:10pt;">Company Intake: &nbsp;See Client Intake_ ${companyName}</p>
-${divider}
+<h1 style="font-size:15pt;font-weight:600;color:#424495;margin:0 0 6px 0;${P}">Position Name: ${positionName}</h1>
+${div}
+<p style="margin:5px 0;${P}font-size:10pt;">Company: &nbsp;<strong>${companyName}</strong></p>
+<p style="margin:5px 0 18px 0;${P}font-size:10pt;">Company Intake: &nbsp;See Client Intake_ ${companyName}</p>
+${div}
 
-<h2 style="${h2Style}">PoC Contact Details</h2>
-${divider}
-<table style="${tableStyle}">
+<h2 style="${h2}">PoC Contact Details</h2>
+${div}
+<table style="${tblStyle}">
   ${row('Name', tbc)}
   ${row('Position', tbc)}
   ${row('Phone Number', tbc)}
   ${row('Email', tbc)}
 </table>
 
-<h2 style="${h2Style}">Position Summary</h2>
-${divider}
-<table style="${tableStyle}">
+<h2 style="${h2}">Position Summary</h2>
+${div}
+<table style="${tblStyle}">
   ${row('Position Name', positionName)}
   ${row('Similar Job Titles', data.similarJobTitles)}
   ${row('Level', data.level || seniority || tbc)}
@@ -136,138 +143,148 @@ ${divider}
   ${row('Salary Range', data.salaryRange || salaryRange || tbc)}
   ${row('Package Details', tbc)}
   ${row('Work Arrangement', data.workArrangement)}
-  ${row('Goals/Expectation', data.goalsExpectation)}
-  ${row('New Hire/Replacement', tbc)}
+  ${row('Goals / Expectation', data.goalsExpectation)}
+  ${row('New Hire / Replacement', tbc)}
 </table>
 
-<h2 style="${h2Style}">Team Environment</h2>
-${divider}
-<table style="${tableStyle}">
-  ${row('Hiring Manager', 'Name: To be confirmed<br>Position: To be confirmed')}
-  ${row('Works closely with (Optional)', data.worksWith)}
+<h2 style="${h2}">Team Environment</h2>
+${div}
+<table style="${tblStyle}">
+  ${row('Hiring Manager', 'Name: &nbsp;To be confirmed<br>Position: &nbsp;To be confirmed')}
+  ${row('Works Closely With', data.worksWith)}
   ${row('Team Size', tbc)}
-  ${row('Team Culture (Optional)', data.teamCulture)}
+  ${row('Team Culture', data.teamCulture)}
 </table>
 
-<h2 style="${h2Style}">Skills &amp; Competencies</h2>
-${divider}
-<table style="${tableStyle}">
+<h2 style="${h2}">Skills &amp; Competencies</h2>
+${div}
+<table style="${tblStyle}">
   ${row('Responsibilities', bullets(data.responsibilities))}
   ${row('Qualifications', bullets(data.qualifications))}
-  ${row('Non-negotiable', bullets(data.nonNegotiable))}
-  ${row('Nice-to-have', bullets(data.niceToHave))}
+  ${row('Non-Negotiable', bullets(data.nonNegotiable))}
+  ${row('Nice-to-Have', bullets(data.niceToHave))}
 </table>
 
-<h2 style="${h2Style}">Other Notes</h2>
-${divider}
-<table style="${tableStyle}">
-  <tr><td style="${valueStyle}" colspan="2">&nbsp;<br>&nbsp;</td></tr>
+<h2 style="${h2}">Other Notes</h2>
+${div}
+<table style="${tblStyle}">
+  <tr><td style="${val}min-height:48px;" colspan="2">&nbsp;</td></tr>
 </table>
 
-<h2 style="${h2Style}">Client's Interview Process</h2>
-${divider}
-<table style="${tableStyle}">
+<h2 style="${h2}">Client's Interview Process</h2>
+${div}
+<table style="${tblStyle}">
   <tr>
-    <td style="${thStyle};width:5%;">No.</td>
-    <td style="${thStyle}">Interview Process</td>
-    <td style="${thStyle}">Type</td>
-    <td style="${thStyle}">By Who</td>
-    <td style="${thStyle}">What is being assessed?</td>
+    <td style="${th};width:6%;text-align:center;">No.</td>
+    <td style="${th};width:28%;">Interview Process</td>
+    <td style="${th};width:14%;">Type</td>
+    <td style="${th};width:20%;">By Who</td>
+    <td style="${th}">What is Being Assessed?</td>
   </tr>
   <tr>
-    <td style="${valueStyle}">1</td><td style="${valueStyle}">&nbsp;</td>
-    <td style="${valueStyle}">Online</td><td style="${valueStyle}">&nbsp;</td><td style="${valueStyle}">&nbsp;</td>
+    <td style="${val}text-align:center;">1</td><td style="${val}">&nbsp;</td>
+    <td style="${val}">Online</td><td style="${val}">&nbsp;</td><td style="${val}">&nbsp;</td>
   </tr>
   <tr>
-    <td style="${valueStyle}">2</td><td style="${valueStyle}">&nbsp;</td>
-    <td style="${valueStyle}">Online</td><td style="${valueStyle}">&nbsp;</td><td style="${valueStyle}">&nbsp;</td>
+    <td style="${val}text-align:center;">2</td><td style="${val}">&nbsp;</td>
+    <td style="${val}">Online</td><td style="${val}">&nbsp;</td><td style="${val}">&nbsp;</td>
   </tr>
   <tr>
-    <td style="${valueStyle}">3</td><td style="${valueStyle}">&nbsp;</td>
-    <td style="${valueStyle}">Online</td><td style="${valueStyle}">&nbsp;</td><td style="${valueStyle}">&nbsp;</td>
+    <td style="${val}text-align:center;">3</td><td style="${val}">&nbsp;</td>
+    <td style="${val}">Online</td><td style="${val}">&nbsp;</td><td style="${val}">&nbsp;</td>
   </tr>
 </table>
 
-<h2 style="${h2Style}">Outreach Messages</h2>
-${divider}
-<table style="${tableStyle}">
-  ${row('Request to Connect', data.requestToConnect)}
+<h2 style="${h2}">Outreach Messages</h2>
+${div}
+<table style="${tblStyle}">
+  ${row('Request to Connect<br><span style="font-weight:400;font-size:9pt;color:#777;">(max 300 chars)</span>', data.requestToConnect)}
   ${row('After Connection', data.afterConnection)}
 </table>
 
-<h2 style="${h2Style}">Phone Screening Questions</h2>
-${divider}
-<table style="${tableStyle}">
+<h2 style="${h2}">Phone Screening Questions</h2>
+${div}
+<table style="${tblStyle}">
   <tr>
-    <td style="${thStyle};width:50%;">Question</td>
-    <td style="${thStyle}">Answer</td>
+    <td style="${th};width:50%;">Question</td>
+    <td style="${th}">Expected Answer</td>
   </tr>
-  ${categoryRow('General/Introduction Questions')}
+  ${catRow('General / Introduction Questions')}
   ${qaRows(data.generalQuestions)}
-  ${categoryRow('Specific Questions')}
+  ${catRow('Specific Questions')}
   ${qaRows(data.specificQuestions)}
-  ${categoryRow('Compensation Questions')}
+  ${catRow('Compensation Questions')}
   ${qaRows(data.compensationQuestions)}
 </table>
 
-<h2 style="${h2Style}">Note Screening Structure</h2>
-${divider}
-<table style="${tableStyle}">
-  <tr><td style="${valueStyle}">
-    <strong>Firstname Lastname (Nickname)</strong><br>
-    Current compensation: <br>
-    Expectations: <br>
-    Notice period: <br>
-    Notes:
-  </td></tr>
+<h2 style="${h2}">Note Screening Structure</h2>
+${div}
+<table style="${tblStyle}">
+  <tr>
+    <td style="${val}line-height:2;">
+      <strong>Firstname Lastname (Nickname)</strong><br>
+      Current compensation: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+      Expectations: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+      Notice period: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+      Notes:
+    </td>
+  </tr>
 </table>
 
 </body></html>`;
 }
 
 function buildJDHTML({ positionName, companyName, data }) {
-  const poppins = "font-family:'Poppins',Arial,sans-serif;";
-  const h2Style = `color:#424495;font-weight:600;font-size:10pt;margin:24px 0 2px 0;${poppins}`;
-  const divider = '<hr style="border:none;border-top:1.5px solid #a0a0a0;margin:4px 0 10px 0;">';
-  const sectionStyle = `margin:0 0 8px 0;line-height:1.7;color:#000;${poppins}font-size:10pt;`;
-  const bullets = (arr) => (arr || []).map(item => `• &nbsp;${item}`).join('<br>');
+  const P = "font-family:'Poppins',Arial,sans-serif;";
+  const h2 = `color:#424495;font-weight:600;font-size:10pt;margin:28px 0 3px 0;${P}`;
+  const div = '<hr style="border:none;border-top:1.5px solid #a0a0a0;margin:3px 0 10px 0;">';
+  const body = `margin:0 0 14px 0;line-height:1.65;color:#000;${P}font-size:10pt;`;
 
-  return `<!DOCTYPE html><html><head><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"></head><body style="${poppins}font-size:10pt;margin:40px 48px;color:#000;">
+  const bullets = (arr) =>
+    `<ul style="margin:0;padding-left:18px;">${(arr || []).map(item =>
+      `<li style="margin-bottom:6px;line-height:1.6;">${item}</li>`).join('')}</ul>`;
 
-<h1 style="font-size:15pt;font-weight:600;color:#424495;margin-bottom:4px;${poppins}">${companyName}: ${positionName}</h1>
-${divider}
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body style="${P}font-size:10pt;margin:48px 56px;color:#000;line-height:1.55;">
 
-<h2 style="${h2Style}">About the Company</h2>
-${divider}
-<p style="${sectionStyle}">${data.aboutCompany}</p>
+<h1 style="font-size:15pt;font-weight:600;color:#424495;margin:0 0 6px 0;${P}">${companyName}: ${positionName}</h1>
+${div}
 
-<h2 style="${h2Style}">About the Role</h2>
-${divider}
-<p style="${sectionStyle}">${data.aboutRole}</p>
+<h2 style="${h2}">About the Company</h2>
+${div}
+<p style="${body}">${data.aboutCompany}</p>
 
-<h2 style="${h2Style}">Responsibilities</h2>
-${divider}
-<p style="${sectionStyle}">${bullets(data.responsibilities)}</p>
+<h2 style="${h2}">About the Role</h2>
+${div}
+<p style="${body}">${data.aboutRole}</p>
 
-<h2 style="${h2Style}">Qualifications</h2>
-${divider}
-<p style="${sectionStyle}">${bullets(data.qualifications)}</p>
+<h2 style="${h2}">Responsibilities</h2>
+${div}
+<div style="${body}">${bullets(data.responsibilities)}</div>
 
-<h2 style="${h2Style}">Language Proficiency</h2>
-${divider}
-<p style="${sectionStyle}">${data.languageProficiency || 'Thai (Native), English (Conversational or above)'}</p>
+<h2 style="${h2}">Qualifications</h2>
+${div}
+<div style="${body}">${bullets(data.qualifications)}</div>
 
-<h2 style="${h2Style}">Benefits</h2>
-${divider}
-<p style="${sectionStyle}">${bullets(data.benefits)}</p>
+<h2 style="${h2}">Language Proficiency</h2>
+${div}
+<p style="${body}">${data.languageProficiency || 'Thai (Native), English (Conversational or above)'}</p>
 
-<h2 style="${h2Style}">Working Conditions</h2>
-${divider}
-<p style="${sectionStyle}">${data.workingConditions}</p>
+<h2 style="${h2}">Benefits</h2>
+${div}
+<div style="${body}">${bullets(data.benefits)}</div>
 
-<h2 style="${h2Style}">Learn More About the Company</h2>
-${divider}
-<p style="${sectionStyle}">${data.learnMore}</p>
+<h2 style="${h2}">Working Conditions</h2>
+${div}
+<p style="${body}">${data.workingConditions}</p>
+
+<h2 style="${h2}">Learn More About the Company</h2>
+${div}
+<p style="${body}">${data.learnMore}</p>
 
 </body></html>`;
 }

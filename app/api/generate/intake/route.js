@@ -44,64 +44,71 @@ Return ONLY a valid JSON object with exactly these keys. No markdown, no explana
 }
 
 function buildHTML({ companyName, website, linkedin, date, data }) {
-  const font = "font-family:'Poppins',Arial,sans-serif;";
-  const tableStyle = `width:100%;border-collapse:collapse;margin-bottom:8px;font-size:10pt;`;
-  const labelStyle = `padding:10px 14px;border:1px solid #000;width:32%;vertical-align:top;color:#000;background:#F7F7F7;font-family:'Poppins',Arial,sans-serif;font-size:10pt;`;
-  const valueStyle = `padding:10px 14px;border:1px solid #000;vertical-align:top;color:#000;font-family:'Poppins',Arial,sans-serif;font-size:10pt;`;
-  const h2Style = `color:#424495;font-weight:600;font-size:10pt;margin:24px 0 2px 0;font-family:'Poppins',Arial,sans-serif;`;
-  const divider = '<hr style="border:none;border-top:1.5px solid #a0a0a0;margin:4px 0 10px 0;">';
+  const P = "font-family:'Poppins',Arial,sans-serif;";
+  const tblStyle = `width:100%;border-collapse:collapse;margin-bottom:20px;font-size:10pt;`;
+  const lbl = `padding:11px 14px;border:1px solid #000;width:32%;vertical-align:top;line-height:1.55;color:#000;background:#F7F7F7;${P}font-size:10pt;`;
+  const val = `padding:11px 14px;border:1px solid #000;vertical-align:top;line-height:1.55;color:#000;${P}font-size:10pt;`;
+  const h2  = `color:#424495;font-weight:600;font-size:10pt;margin:28px 0 3px 0;${P}`;
+  const div = '<hr style="border:none;border-top:1.5px solid #a0a0a0;margin:3px 0 10px 0;">';
 
   const row = (label, value) => `
     <tr>
-      <td style="${labelStyle}">${label}</td>
-      <td style="${valueStyle}">${value || '<span style="color:#aaa">—</span>'}</td>
+      <td style="${lbl}">${label}</td>
+      <td style="${val}">${value || '<span style="color:#aaa;font-style:italic;">—</span>'}</td>
     </tr>`;
 
-  const bullets = (arr) => (arr || []).map(item => `• &nbsp;${item}`).join('<br>');
+  const bullets = (arr) =>
+    `<ul style="margin:0;padding-left:18px;">${(arr || []).map(item =>
+      `<li style="margin-bottom:5px;line-height:1.55;">${item}</li>`).join('')}</ul>`;
 
-  return `<!DOCTYPE html><html><head><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"></head><body style="${font}font-size:10pt;margin:40px 48px;color:#000;">
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body style="${P}font-size:10pt;margin:48px 56px;color:#000;line-height:1.55;">
 
-<h1 style="font-size:15pt;font-weight:600;color:#424495;margin-bottom:4px;font-family:'Poppins',Arial,sans-serif;">Company Name: ${companyName}</h1>
-${divider}
-<p style="margin:6px 0;font-size:10pt;font-family:'Poppins',Arial,sans-serif;">Intake by: &nbsp;${data.intakeBy || 'StartupBreed'}</p>
-<p style="margin:6px 0 16px 0;font-size:10pt;font-family:'Poppins',Arial,sans-serif;">Date: &nbsp;${date}</p>
-${divider}
+<h1 style="font-size:15pt;font-weight:600;color:#424495;margin:0 0 6px 0;${P}">Company Name: ${companyName}</h1>
+${div}
+<p style="margin:5px 0;${P}font-size:10pt;">Intake by: &nbsp;${data.intakeBy || 'StartupBreed'}</p>
+<p style="margin:5px 0 18px 0;${P}font-size:10pt;">Date: &nbsp;${date}</p>
+${div}
 
-<h2 style="${h2Style}">General Information</h2>
-${divider}
-<table style="${tableStyle}">
+<h2 style="${h2}">General Information</h2>
+${div}
+<table style="${tblStyle}">
   ${row('Registered Name', data.registeredName)}
   ${row('Registration Number', data.registrationNumber)}
   ${row('Job Industry', data.industry)}
-  ${row('Company Size<br>(number of employees)', data.companySize)}
+  ${row('Company Size<br><span style="font-weight:400;font-size:9pt;color:#666;">(number of employees)</span>', data.companySize)}
   ${row('Current Funding', data.currentFunding)}
   ${row('Office Location(s)', data.officeLocations)}
 </table>
 
-<h2 style="${h2Style}">Company Information</h2>
-${divider}
-<table style="${tableStyle}">
+<h2 style="${h2}">Company Information</h2>
+${div}
+<table style="${tblStyle}">
   ${row('Elevator Pitch', data.elevatorPitch)}
-  ${row('Mission/Vision', `<strong>Mission:</strong> ${data.mission}<br><br><strong>Vision:</strong> ${data.vision}`)}
+  ${row('Mission / Vision', `<strong>Mission:</strong>&nbsp; ${data.mission}<br><br><strong>Vision:</strong>&nbsp; ${data.vision}`)}
   ${row('Company Background', data.companyBackground)}
-  ${row('Services/Products', bullets(data.servicesProducts))}
+  ${row('Services / Products', bullets(data.servicesProducts))}
   ${row('Unique Selling Points (USP)', bullets(data.usp))}
   ${row('Target Market', bullets(data.targetMarket))}
   ${row('Main Competitors', bullets((data.mainCompetitors || '').split(',').map(s => s.trim())))}
 </table>
 
-<h2 style="${h2Style}">Company Culture &amp; Values</h2>
-${divider}
-<table style="${tableStyle}">
+<h2 style="${h2}">Company Culture &amp; Values</h2>
+${div}
+<table style="${tblStyle}">
   ${row('Company Culture', data.companyCulture)}
-  ${row('Qualities valued most in your employees (Optional)', data.qualitiesValued)}
+  ${row('Qualities Valued in Employees', data.qualitiesValued)}
 </table>
 
-<h2 style="${h2Style}">Resources (hyperlink)</h2>
-${divider}
-<table style="${tableStyle}">
-  ${row('Website', website ? `<a href="${website}" style="color:#1155CC;">${website}</a>` : '<span style="color:#aaa">—</span>')}
-  ${row('LinkedIn', linkedin ? `<a href="${linkedin}" style="color:#1155CC;">${linkedin}</a>` : '<span style="color:#aaa">—</span>')}
+<h2 style="${h2}">Resources</h2>
+${div}
+<table style="${tblStyle}">
+  ${row('Website', website ? `<a href="${website}" style="color:#1155CC;">${website}</a>` : '<span style="color:#aaa;font-style:italic;">—</span>')}
+  ${row('LinkedIn', linkedin ? `<a href="${linkedin}" style="color:#1155CC;">${linkedin}</a>` : '<span style="color:#aaa;font-style:italic;">—</span>')}
 </table>
 
 </body></html>`;
