@@ -14,145 +14,238 @@ async function readClientIntake(drive, clientFolderId) {
   });
   const file = res.data.files?.[0];
   if (!file) return null;
-
-  const content = await drive.files.get(
-    { fileId: file.id, alt: 'media' },
-    { responseType: 'text' }
-  );
-  return content.data;
+  try {
+    const content = await drive.files.export({ fileId: file.id, mimeType: 'text/plain' });
+    return content.data;
+  } catch {
+    const content = await drive.files.get({ fileId: file.id, alt: 'media' }, { responseType: 'text' });
+    return content.data;
+  }
 }
 
-function buildPositionPrompt({ positionName, companyName, seniority, salaryRange, additionalNote, intakeContent }) {
-  return `You are generating two recruitment documents for a headhunting firm. Use the Client Intake below as your primary source of company information.
+function buildPrompt({ positionName, companyName, seniority, salaryRange, additionalNote, intakeContent }) {
+  return `You are a professional recruitment consultant. Using the Client Intake below as company context, generate a Pre-hunt document and a Job Description for this position.
 
 CLIENT INTAKE (company context):
-${intakeContent || 'No Client Intake available — use the company name to infer context.'}
+${intakeContent || `Company: ${companyName}. No intake available — infer from company name.`}
 
----
-
-POSITION DETAILS:
+POSITION:
 Position Name: ${positionName}
 Company: ${companyName}
 Seniority Level: ${seniority || 'Not specified'}
 Salary Range: ${salaryRange || 'To be confirmed'}
 Additional Note: ${additionalNote || 'None'}
 
----
+Return ONLY a valid JSON object with exactly two keys: "preHunt" and "jobDescription". No markdown, no explanation.
 
-Generate exactly two documents. Return ONLY a valid JSON object with two keys: "preHunt" and "jobDescription". Each value is the complete document as a plain text string. No markdown code blocks outside the JSON.
+"preHunt" should be an object with these keys:
+{
+  "similarJobTitles": "2-3 similar titles",
+  "level": "${seniority || 'To be confirmed'}",
+  "salaryRange": "${salaryRange || 'To be confirmed'}",
+  "workArrangement": "On-site / Hybrid / Remote — infer from company info",
+  "goalsExpectation": "key goals for first 3-6 months",
+  "teamCulture": "inferred from company culture",
+  "worksWith": "likely teams this role collaborates with",
+  "responsibilities": ["action verb + specific responsibility 1", "...up to 10 total"],
+  "qualifications": ["qualification 1", "..."],
+  "nonNegotiable": ["must-have skill/experience 1", "...up to 6"],
+  "niceToHave": ["nice-to-have skill 1", "...up to 5"],
+  "requestToConnect": "LinkedIn connection request max 300 chars — mention role, company USP, invite to connect",
+  "afterConnection": "warm follow-up message as StartupBreed recruiter, mention key responsibilities, invite to schedule call",
+  "generalQuestions": [{"q": "question", "a": "expected answer"}, {"q": "...", "a": "..."}, {"q": "...", "a": "..."}],
+  "specificQuestions": [{"q": "...", "a": "..."}, {"q": "...", "a": "..."}, {"q": "...", "a": "..."}, {"q": "...", "a": "..."}, {"q": "...", "a": "..."}, {"q": "...", "a": "..."}],
+  "compensationQuestions": [{"q": "...", "a": "..."}, {"q": "...", "a": "..."}, {"q": "...", "a": "..."}, {"q": "...", "a": "..."}]
+}
 
-PRE-HUNT DOCUMENT (key "preHunt"):
-Fill every field. Use "[To be confirmed]" only for PoC contact details, exact package details, and interview process specifics that require direct client input.
+"jobDescription" should be an object with these keys:
+{
+  "aboutCompany": "3-4 sentences: mission, values, culture, achievements — written for a candidate",
+  "aboutRole": "2-3 sentences on purpose of role and how it fits the company",
+  "responsibilities": ["bullet 1", "...up to 10"],
+  "qualifications": ["required and preferred qualifications"],
+  "languageProficiency": "required languages and level",
+  "benefits": ["benefit 1", "benefit 2", "..."],
+  "workingConditions": "location, remote/on-site, hours",
+  "learnMore": "website and LinkedIn links"
+}`;
+}
 
-Position Name: ${positionName}
-Company: ${companyName}
+function buildPreHuntHTML({ positionName, companyName, seniority, salaryRange, data }) {
+  const tableStyle = 'width:100%;border-collapse:collapse;margin-bottom:16px;';
+  const labelStyle = 'background:#f3f3f3;font-weight:bold;padding:8px 12px;border:1px solid #ccc;width:35%;vertical-align:top;';
+  const valueStyle = 'padding:8px 12px;border:1px solid #ccc;vertical-align:top;';
+  const h2Style = 'background:#4a4a4a;color:white;padding:8px 12px;margin:24px 0 8px 0;font-size:14px;';
+  const tbc = '<span style="color:#999">To be confirmed</span>';
 
-POC CONTACT DETAILS
-Name: [To be confirmed]
-Position: [To be confirmed]
-Phone Number: [To be confirmed]
-Email: [To be confirmed]
+  const row = (label, value) => `
+    <tr>
+      <td style="${labelStyle}">${label}</td>
+      <td style="${valueStyle}">${value || tbc}</td>
+    </tr>`;
 
-POSITION SUMMARY
-Position Name: ${positionName}
-Similar Job Titles: [2–3 similar titles]
-Level: ${seniority || '[Entry / Associate / Senior / Manager / Director / Executive]'}
-Candidate Start Date: [To be confirmed]
-Salary Range: ${salaryRange || '[To be confirmed]'}
-Package Details: [To be confirmed]
-Work Arrangement: [On-site / Hybrid / Remote — infer from company info]
-Goals/Expectation: [Key goals for first 3–6 months in this specific role]
-New Hire/Replacement: [To be confirmed]
+  const bulletList = (arr) => (arr || []).map(item => `• ${item}`).join('<br>');
 
-TEAM ENVIRONMENT
-Hiring Manager Name: [To be confirmed]
-Hiring Manager Position: [To be confirmed]
-Works Closely With: [likely teams based on this role]
-Team Size: [To be confirmed]
-Team Culture: [inferred from company culture in intake]
+  const qaRows = (questions) => (questions || []).map(({ q, a }) => `
+    <tr>
+      <td style="${valueStyle}">${q}</td>
+      <td style="${valueStyle}">${a}</td>
+    </tr>`).join('');
 
-SKILLS & COMPETENCIES
-Responsibilities:
-[Write 8–10 bullet points. Each starts with an action verb. Tailor specifically to this role, company stage, and industry. Make each point specific and meaningful — not copy-pasted from a generic JD.]
-Qualifications:
-[Required and preferred — education, certifications, years of experience specific to this role]
-Non-Negotiable:
-[4–6 must-have skills/experience for this exact role]
-Nice-to-Have:
-[3–5 desirable but not essential skills]
+  return `<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;font-size:12px;margin:32px;">
 
-CLIENT'S INTERVIEW PROCESS
-No. | Interview Process | Type | By Who | What is being assessed
-1 | [To be confirmed] | Online | [To be confirmed] | [assessment focus]
-2 | [To be confirmed] | Online | [To be confirmed] | [assessment focus]
-3 | [To be confirmed] | Online | [To be confirmed] | [assessment focus]
+<h1 style="font-size:18px;margin-bottom:4px;">Position Name: ${positionName}</h1>
+<p style="margin:4px 0;"><strong>Company:</strong> ${companyName}</p>
+<p style="margin:4px 0;"><strong>Company Intake:</strong> See Client Intake_ ${companyName}</p>
 
-OUTREACH MESSAGES
-Request to Connect (max 300 characters):
-[Brief, professional LinkedIn message. Mention role, company USP, invite to connect. Max 300 chars.]
+<h2 style="${h2Style}">PoC Contact Details</h2>
+<table style="${tableStyle}">
+  ${row('Name', tbc)}
+  ${row('Position', tbc)}
+  ${row('Phone Number', tbc)}
+  ${row('Email', tbc)}
+</table>
 
-After Connection:
-[Warm follow-up: recruiter represents StartupBreed as the firm, outlines key responsibilities, invites candidate to schedule a call. Friendly and professional tone.]
+<h2 style="${h2Style}">Position Summary</h2>
+<table style="${tableStyle}">
+  ${row('Position Name', positionName)}
+  ${row('Similar Job Titles', data.similarJobTitles)}
+  ${row('Level', data.level || seniority || tbc)}
+  ${row('Candidate Start Date', tbc)}
+  ${row('Salary Range', data.salaryRange || salaryRange || tbc)}
+  ${row('Package Details', tbc)}
+  ${row('Work Arrangement', data.workArrangement)}
+  ${row('Goals/Expectation', data.goalsExpectation)}
+  ${row('New Hire/Replacement', tbc)}
+</table>
 
-PHONE SCREENING QUESTIONS
-Format: Question | Expected Answer
+<h2 style="${h2Style}">Team Environment</h2>
+<table style="${tableStyle}">
+  ${row('Hiring Manager', 'Name: To be confirmed<br>Position: To be confirmed')}
+  ${row('Works closely with', data.worksWith)}
+  ${row('Team Size', tbc)}
+  ${row('Team Culture', data.teamCulture)}
+</table>
 
-General/Introduction Questions
-[Question 1] | [Expected Answer]
-[Question 2] | [Expected Answer]
-[Question 3] | [Expected Answer]
+<h2 style="${h2Style}">Skills & Competencies</h2>
+<table style="${tableStyle}">
+  ${row('Responsibilities', bulletList(data.responsibilities))}
+  ${row('Qualifications', bulletList(data.qualifications))}
+  ${row('Non-negotiable', bulletList(data.nonNegotiable))}
+  ${row('Nice-to-have', bulletList(data.niceToHave))}
+</table>
 
-Specific Questions (tailored to this role)
-[Question 1] | [Expected Answer]
-[Question 2] | [Expected Answer]
-[Question 3] | [Expected Answer]
-[Question 4] | [Expected Answer]
-[Question 5] | [Expected Answer]
-[Question 6] | [Expected Answer]
+<h2 style="${h2Style}">Other Notes</h2>
+<table style="${tableStyle}">
+  <tr><td style="${valueStyle}">&nbsp;</td></tr>
+</table>
 
-Compensation Questions
-[Question 1] | [Expected Answer]
-[Question 2] | [Expected Answer]
-[Question 3] | [Expected Answer]
-[Question 4] | [Expected Answer]
+<h2 style="${h2Style}">Client's Interview Process</h2>
+<table style="${tableStyle}">
+  <tr>
+    <td style="${labelStyle}">No.</td>
+    <td style="${labelStyle}">Interview Process</td>
+    <td style="${labelStyle}">Type</td>
+    <td style="${labelStyle}">By Who</td>
+    <td style="${labelStyle}">What is being assessed?</td>
+  </tr>
+  <tr>
+    <td style="${valueStyle}">1</td>
+    <td style="${valueStyle}">&nbsp;</td>
+    <td style="${valueStyle}">Online</td>
+    <td style="${valueStyle}">&nbsp;</td>
+    <td style="${valueStyle}">&nbsp;</td>
+  </tr>
+  <tr>
+    <td style="${valueStyle}">2</td>
+    <td style="${valueStyle}">&nbsp;</td>
+    <td style="${valueStyle}">Online</td>
+    <td style="${valueStyle}">&nbsp;</td>
+    <td style="${valueStyle}">&nbsp;</td>
+  </tr>
+  <tr>
+    <td style="${valueStyle}">3</td>
+    <td style="${valueStyle}">&nbsp;</td>
+    <td style="${valueStyle}">Online</td>
+    <td style="${valueStyle}">&nbsp;</td>
+    <td style="${valueStyle}">&nbsp;</td>
+  </tr>
+</table>
 
-NOTE SCREENING STRUCTURE:
-Firstname Lastname (Nickname)
-Current compensation:
-Expectations:
-Notice period:
-Notes: [key experience points relevant to this role]
+<h2 style="${h2Style}">Outreach Messages</h2>
+<table style="${tableStyle}">
+  ${row('Request to Connect', data.requestToConnect)}
+  ${row('After Connection', data.afterConnection)}
+</table>
 
----
+<h2 style="${h2Style}">Phone Screening Questions</h2>
+<table style="${tableStyle}">
+  <tr>
+    <td style="${labelStyle}">Question</td>
+    <td style="${labelStyle}">Answer</td>
+  </tr>
+  <tr>
+    <td colspan="2" style="background:#e8f0fe;font-weight:bold;padding:8px 12px;border:1px solid #ccc;">General/Introduction Questions</td>
+  </tr>
+  ${qaRows(data.generalQuestions)}
+  <tr>
+    <td colspan="2" style="background:#e8f0fe;font-weight:bold;padding:8px 12px;border:1px solid #ccc;">Specific Questions</td>
+  </tr>
+  ${qaRows(data.specificQuestions)}
+  <tr>
+    <td colspan="2" style="background:#e8f0fe;font-weight:bold;padding:8px 12px;border:1px solid #ccc;">Compensation Questions</td>
+  </tr>
+  ${qaRows(data.compensationQuestions)}
+</table>
 
-JOB DESCRIPTION DOCUMENT (key "jobDescription"):
-Create a complete, professional, candidate-facing job description ready to post.
+<h2 style="${h2Style}">Note Screening Structure</h2>
+<table style="${tableStyle}">
+  <tr><td style="${valueStyle}">
+    <strong>Firstname Lastname (Nickname)</strong><br>
+    Current compensation: <br>
+    Expectations: <br>
+    Notice period: <br>
+    Notes:
+  </td></tr>
+</table>
 
-${companyName}: ${positionName}
+</body></html>`;
+}
 
-About the Company
-[3–4 sentences: mission, values, culture, notable achievements — written for a candidate reading for the first time]
+function buildJDHTML({ positionName, companyName, data }) {
+  const h2Style = 'background:#4a4a4a;color:white;padding:8px 12px;margin:24px 0 8px 0;font-size:14px;';
+  const sectionStyle = 'padding:8px 0 16px 0;border-bottom:1px solid #eee;';
+  const bulletList = (arr) => (arr || []).map(item => `• ${item}`).join('<br>');
 
-About the Role
-[2–3 sentences on the purpose of this role and how it fits into the company structure]
+  return `<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;font-size:12px;margin:32px;">
 
-Responsibilities
-[8–10 bullet points, action verbs, specific to this role and company — not generic]
+<h1 style="font-size:20px;margin-bottom:4px;">${companyName}: ${positionName}</h1>
 
-Qualifications
-[Required and preferred: education, skills, years of experience, certifications]
+<h2 style="${h2Style}">About the Company</h2>
+<p style="${sectionStyle}">${data.aboutCompany}</p>
 
-Language Proficiency
-[Required and preferred languages and level]
+<h2 style="${h2Style}">About the Role</h2>
+<p style="${sectionStyle}">${data.aboutRole}</p>
 
-Benefits
-[List benefits from intake if available, or "Competitive package — details to be confirmed"]
+<h2 style="${h2Style}">Responsibilities</h2>
+<p style="${sectionStyle}">${bulletList(data.responsibilities)}</p>
 
-Working Conditions
-[Location, remote/on-site/hybrid, working hours]
+<h2 style="${h2Style}">Qualifications</h2>
+<p style="${sectionStyle}">${bulletList(data.qualifications)}</p>
 
-Learn More About the Company
-[Website and LinkedIn from intake]`;
+<h2 style="${h2Style}">Language Proficiency</h2>
+<p style="${sectionStyle}">${data.languageProficiency || 'Thai (Native), English (Conversational or above)'}</p>
+
+<h2 style="${h2Style}">Benefits</h2>
+<p style="${sectionStyle}">${bulletList(data.benefits)}</p>
+
+<h2 style="${h2Style}">Working Conditions</h2>
+<p style="${sectionStyle}">${data.workingConditions}</p>
+
+<h2 style="${h2Style}">Learn More About the Company</h2>
+<p style="${sectionStyle}">${data.learnMore}</p>
+
+</body></html>`;
 }
 
 export async function POST(request) {
@@ -160,8 +253,7 @@ export async function POST(request) {
   if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
   const body = await request.json();
-  const { positionName, companyName, seniority, salaryRange, additionalNote, positionFolderId, clientFolderId } = body;
-
+  const { positionName, companyName, seniority, salaryRange, positionFolderId, clientFolderId } = body;
   if (!positionName || !positionFolderId || !clientFolderId) {
     return Response.json({ error: 'Missing required fields' }, { status: 400 });
   }
@@ -170,7 +262,6 @@ export async function POST(request) {
   auth.setCredentials({ access_token: session.access_token });
   const drive = google.drive({ version: 'v3', auth });
 
-  // Read existing Client Intake from the client folder
   const intakeContent = await readClientIntake(drive, clientFolderId);
 
   let parsed;
@@ -178,10 +269,9 @@ export async function POST(request) {
     const message = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 8000,
-      system: 'You are an expert recruitment consultant at a professional headhunting firm in Bangkok. Generate detailed Pre-hunt and Job Description documents. Always return a single valid JSON object with keys "preHunt" and "jobDescription". No markdown code blocks outside the JSON.',
-      messages: [{ role: 'user', content: buildPositionPrompt({ ...body, intakeContent }) }],
+      system: 'You are a professional recruitment consultant. Return only valid JSON, no markdown, no explanation.',
+      messages: [{ role: 'user', content: buildPrompt({ ...body, intakeContent }) }],
     });
-
     const text = message.content[0].text.trim();
     const jsonStart = text.indexOf('{');
     const jsonEnd = text.lastIndexOf('}');
@@ -190,16 +280,27 @@ export async function POST(request) {
     return Response.json({ error: 'Generation failed: ' + err.message }, { status: 500 });
   }
 
+  const phHTML = buildPreHuntHTML({ positionName, companyName, seniority, salaryRange, data: parsed.preHunt });
+  const jdHTML = buildJDHTML({ positionName, companyName, data: parsed.jobDescription });
+
   try {
     const [phFile, jdFile] = await Promise.all([
       drive.files.create({
-        requestBody: { name: `Pre-hunt_ ${companyName}_${positionName}.txt`, parents: [positionFolderId], mimeType: 'text/plain' },
-        media: { mimeType: 'text/plain', body: Readable.from(parsed.preHunt) },
+        requestBody: {
+          name: `Pre-hunt_ ${companyName}_${positionName}`,
+          parents: [positionFolderId],
+          mimeType: 'application/vnd.google-apps.document',
+        },
+        media: { mimeType: 'text/html', body: Readable.from(phHTML) },
         fields: 'id, name',
       }),
       drive.files.create({
-        requestBody: { name: `JD_${companyName}_${positionName}.txt`, parents: [positionFolderId], mimeType: 'text/plain' },
-        media: { mimeType: 'text/plain', body: Readable.from(parsed.jobDescription) },
+        requestBody: {
+          name: `JD_${companyName}_${positionName}`,
+          parents: [positionFolderId],
+          mimeType: 'application/vnd.google-apps.document',
+        },
+        media: { mimeType: 'text/html', body: Readable.from(jdHTML) },
         fields: 'id, name',
       }),
     ]);
