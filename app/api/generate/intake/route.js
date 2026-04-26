@@ -44,25 +44,31 @@ Return ONLY a valid JSON object with exactly these keys. No markdown, no explana
 }
 
 function buildHTML({ companyName, website, linkedin, date, data }) {
-  const tableStyle = 'width:100%;border-collapse:collapse;margin-bottom:16px;';
-  const labelStyle = 'background:#f3f3f3;font-weight:bold;padding:8px 12px;border:1px solid #ccc;width:35%;vertical-align:top;';
-  const valueStyle = 'padding:8px 12px;border:1px solid #ccc;vertical-align:top;';
-  const h2Style = 'background:#4a4a4a;color:white;padding:8px 12px;margin:24px 0 8px 0;font-size:14px;';
+  const font = 'font-family:Arial,sans-serif;';
+  const tableStyle = `width:100%;border-collapse:collapse;margin-bottom:8px;${font}font-size:11pt;`;
+  const labelStyle = 'padding:12px 14px;border:1px solid #d0d0d0;width:30%;vertical-align:top;color:#333;';
+  const valueStyle = 'padding:12px 14px;border:1px solid #d0d0d0;vertical-align:top;color:#111;';
+  const h2Style = `color:#D4622A;font-weight:bold;font-size:12pt;margin:28px 0 4px 0;padding-bottom:4px;border-bottom:1.5px solid #e0e0e0;${font}`;
+  const divider = '<hr style="border:none;border-top:1px solid #e0e0e0;margin:6px 0 14px 0;">';
 
   const row = (label, value) => `
     <tr>
       <td style="${labelStyle}">${label}</td>
-      <td style="${valueStyle}">${value || '<span style="color:#999">To be confirmed</span>'}</td>
+      <td style="${valueStyle}">${value || '<span style="color:#aaa">—</span>'}</td>
     </tr>`;
 
-  const listItems = (arr) => arr.map(item => `• ${item}`).join('<br>');
+  const bullets = (arr) => (arr || []).map(item => `• &nbsp;${item}`).join('<br>');
 
-  return `<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;font-size:12px;margin:32px;">
+  return `<!DOCTYPE html><html><body style="${font}font-size:11pt;margin:40px 48px;color:#111;">
 
-<h1 style="font-size:18px;margin-bottom:4px;">Company Name: ${companyName}</h1>
-<p style="margin:4px 0;">Intake by: <strong>StartupBreed</strong> &nbsp;&nbsp; Date: <strong>${date}</strong></p>
+<h1 style="font-size:20pt;font-weight:bold;color:#2D2B6B;margin-bottom:6px;${font}">Company Name: ${companyName}</h1>
+${divider}
+<p style="margin:6px 0;font-size:11pt;">Intake by: &nbsp;${data.intakeBy || 'StartupBreed'}</p>
+<p style="margin:6px 0 20px 0;font-size:11pt;">Date: &nbsp;${date}</p>
+${divider}
 
 <h2 style="${h2Style}">General Information</h2>
+${divider}
 <table style="${tableStyle}">
   ${row('Registered Name', data.registeredName)}
   ${row('Registration Number', data.registrationNumber)}
@@ -73,26 +79,29 @@ function buildHTML({ companyName, website, linkedin, date, data }) {
 </table>
 
 <h2 style="${h2Style}">Company Information</h2>
+${divider}
 <table style="${tableStyle}">
   ${row('Elevator Pitch', data.elevatorPitch)}
-  ${row('Mission/Vision', `Mission: ${data.mission}<br>Vision: ${data.vision}`)}
+  ${row('Mission/Vision', `<strong>Mission:</strong> ${data.mission}<br><br><strong>Vision:</strong> ${data.vision}`)}
   ${row('Company Background', data.companyBackground)}
-  ${row('Services/Products', listItems(data.servicesProducts || []))}
-  ${row('Unique Selling Points (USP)', listItems(data.usp || []))}
-  ${row('Target Market', listItems(data.targetMarket || []))}
-  ${row('Main Competitors', data.mainCompetitors)}
+  ${row('Services/Products', bullets(data.servicesProducts))}
+  ${row('Unique Selling Points (USP)', bullets(data.usp))}
+  ${row('Target Market', bullets(data.targetMarket))}
+  ${row('Main Competitors', bullets((data.mainCompetitors || '').split(',').map(s => s.trim())))}
 </table>
 
-<h2 style="${h2Style}">Company Culture & Values</h2>
+<h2 style="${h2Style}">Company Culture &amp; Values</h2>
+${divider}
 <table style="${tableStyle}">
   ${row('Company Culture', data.companyCulture)}
-  ${row('Qualities valued most in employees', data.qualitiesValued)}
+  ${row('Qualities valued most in your employees (Optional)', data.qualitiesValued)}
 </table>
 
-<h2 style="${h2Style}">Resources</h2>
+<h2 style="${h2Style}">Resources (hyperlink)</h2>
+${divider}
 <table style="${tableStyle}">
-  ${row('Website', website ? `<a href="${website}">${website}</a>` : 'To be confirmed')}
-  ${row('LinkedIn', linkedin ? `<a href="${linkedin}">${linkedin}</a>` : 'To be confirmed')}
+  ${row('Website', website ? `<a href="${website}" style="color:#1155CC;">${website}</a>` : '<span style="color:#aaa">—</span>')}
+  ${row('LinkedIn', linkedin ? `<a href="${linkedin}" style="color:#1155CC;">${linkedin}</a>` : '<span style="color:#aaa">—</span>')}
 </table>
 
 </body></html>`;

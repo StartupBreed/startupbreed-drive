@@ -78,11 +78,14 @@ Return ONLY a valid JSON object with exactly two keys: "preHunt" and "jobDescrip
 }
 
 function buildPreHuntHTML({ positionName, companyName, seniority, salaryRange, data }) {
-  const tableStyle = 'width:100%;border-collapse:collapse;margin-bottom:16px;';
-  const labelStyle = 'background:#f3f3f3;font-weight:bold;padding:8px 12px;border:1px solid #ccc;width:35%;vertical-align:top;';
-  const valueStyle = 'padding:8px 12px;border:1px solid #ccc;vertical-align:top;';
-  const h2Style = 'background:#4a4a4a;color:white;padding:8px 12px;margin:24px 0 8px 0;font-size:14px;';
-  const tbc = '<span style="color:#999">To be confirmed</span>';
+  const font = 'font-family:Arial,sans-serif;';
+  const tableStyle = `width:100%;border-collapse:collapse;margin-bottom:8px;${font}font-size:11pt;`;
+  const labelStyle = 'padding:10px 14px;border:1px solid #d0d0d0;width:30%;vertical-align:top;color:#333;';
+  const valueStyle = 'padding:10px 14px;border:1px solid #d0d0d0;vertical-align:top;color:#111;';
+  const thStyle = 'padding:10px 14px;border:1px solid #d0d0d0;vertical-align:top;color:#333;font-weight:bold;background:#f9f9f9;';
+  const h2Style = `color:#D4622A;font-weight:bold;font-size:12pt;margin:28px 0 4px 0;padding-bottom:4px;border-bottom:1.5px solid #e0e0e0;${font}`;
+  const divider = '<hr style="border:none;border-top:1px solid #e0e0e0;margin:6px 0 14px 0;">';
+  const tbc = '<span style="color:#aaa">To be confirmed</span>';
 
   const row = (label, value) => `
     <tr>
@@ -90,7 +93,7 @@ function buildPreHuntHTML({ positionName, companyName, seniority, salaryRange, d
       <td style="${valueStyle}">${value || tbc}</td>
     </tr>`;
 
-  const bulletList = (arr) => (arr || []).map(item => `• ${item}`).join('<br>');
+  const bullets = (arr) => (arr || []).map(item => `• &nbsp;${item}`).join('<br>');
 
   const qaRows = (questions) => (questions || []).map(({ q, a }) => `
     <tr>
@@ -98,13 +101,21 @@ function buildPreHuntHTML({ positionName, companyName, seniority, salaryRange, d
       <td style="${valueStyle}">${a}</td>
     </tr>`).join('');
 
-  return `<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;font-size:12px;margin:32px;">
+  const categoryRow = (label) => `
+    <tr>
+      <td colspan="2" style="background:#f0f0f0;font-weight:bold;padding:8px 14px;border:1px solid #d0d0d0;color:#333;">${label}</td>
+    </tr>`;
 
-<h1 style="font-size:18px;margin-bottom:4px;">Position Name: ${positionName}</h1>
-<p style="margin:4px 0;"><strong>Company:</strong> ${companyName}</p>
-<p style="margin:4px 0;"><strong>Company Intake:</strong> See Client Intake_ ${companyName}</p>
+  return `<!DOCTYPE html><html><body style="${font}font-size:11pt;margin:40px 48px;color:#111;">
+
+<h1 style="font-size:20pt;font-weight:bold;color:#2D2B6B;margin-bottom:6px;${font}">Position Name: ${positionName}</h1>
+${divider}
+<p style="margin:6px 0;">Company: &nbsp;<strong>${companyName}</strong></p>
+<p style="margin:6px 0 20px 0;">Company Intake: &nbsp;See Client Intake_ ${companyName}</p>
+${divider}
 
 <h2 style="${h2Style}">PoC Contact Details</h2>
+${divider}
 <table style="${tableStyle}">
   ${row('Name', tbc)}
   ${row('Position', tbc)}
@@ -113,6 +124,7 @@ function buildPreHuntHTML({ positionName, companyName, seniority, salaryRange, d
 </table>
 
 <h2 style="${h2Style}">Position Summary</h2>
+${divider}
 <table style="${tableStyle}">
   ${row('Position Name', positionName)}
   ${row('Similar Job Titles', data.similarJobTitles)}
@@ -126,85 +138,77 @@ function buildPreHuntHTML({ positionName, companyName, seniority, salaryRange, d
 </table>
 
 <h2 style="${h2Style}">Team Environment</h2>
+${divider}
 <table style="${tableStyle}">
   ${row('Hiring Manager', 'Name: To be confirmed<br>Position: To be confirmed')}
-  ${row('Works closely with', data.worksWith)}
+  ${row('Works closely with (Optional)', data.worksWith)}
   ${row('Team Size', tbc)}
-  ${row('Team Culture', data.teamCulture)}
+  ${row('Team Culture (Optional)', data.teamCulture)}
 </table>
 
-<h2 style="${h2Style}">Skills & Competencies</h2>
+<h2 style="${h2Style}">Skills &amp; Competencies</h2>
+${divider}
 <table style="${tableStyle}">
-  ${row('Responsibilities', bulletList(data.responsibilities))}
-  ${row('Qualifications', bulletList(data.qualifications))}
-  ${row('Non-negotiable', bulletList(data.nonNegotiable))}
-  ${row('Nice-to-have', bulletList(data.niceToHave))}
+  ${row('Responsibilities', bullets(data.responsibilities))}
+  ${row('Qualifications', bullets(data.qualifications))}
+  ${row('Non-negotiable', bullets(data.nonNegotiable))}
+  ${row('Nice-to-have', bullets(data.niceToHave))}
 </table>
 
 <h2 style="${h2Style}">Other Notes</h2>
+${divider}
 <table style="${tableStyle}">
-  <tr><td style="${valueStyle}">&nbsp;</td></tr>
+  <tr><td style="${valueStyle}" colspan="2">&nbsp;<br>&nbsp;</td></tr>
 </table>
 
 <h2 style="${h2Style}">Client's Interview Process</h2>
+${divider}
 <table style="${tableStyle}">
   <tr>
-    <td style="${labelStyle}">No.</td>
-    <td style="${labelStyle}">Interview Process</td>
-    <td style="${labelStyle}">Type</td>
-    <td style="${labelStyle}">By Who</td>
-    <td style="${labelStyle}">What is being assessed?</td>
+    <td style="${thStyle};width:5%;">No.</td>
+    <td style="${thStyle};">Interview Process</td>
+    <td style="${thStyle};">Type</td>
+    <td style="${thStyle};">By Who</td>
+    <td style="${thStyle};">What is being assessed?</td>
   </tr>
   <tr>
-    <td style="${valueStyle}">1</td>
-    <td style="${valueStyle}">&nbsp;</td>
-    <td style="${valueStyle}">Online</td>
-    <td style="${valueStyle}">&nbsp;</td>
-    <td style="${valueStyle}">&nbsp;</td>
+    <td style="${valueStyle}">1</td><td style="${valueStyle}">&nbsp;</td>
+    <td style="${valueStyle}">Online</td><td style="${valueStyle}">&nbsp;</td><td style="${valueStyle}">&nbsp;</td>
   </tr>
   <tr>
-    <td style="${valueStyle}">2</td>
-    <td style="${valueStyle}">&nbsp;</td>
-    <td style="${valueStyle}">Online</td>
-    <td style="${valueStyle}">&nbsp;</td>
-    <td style="${valueStyle}">&nbsp;</td>
+    <td style="${valueStyle}">2</td><td style="${valueStyle}">&nbsp;</td>
+    <td style="${valueStyle}">Online</td><td style="${valueStyle}">&nbsp;</td><td style="${valueStyle}">&nbsp;</td>
   </tr>
   <tr>
-    <td style="${valueStyle}">3</td>
-    <td style="${valueStyle}">&nbsp;</td>
-    <td style="${valueStyle}">Online</td>
-    <td style="${valueStyle}">&nbsp;</td>
-    <td style="${valueStyle}">&nbsp;</td>
+    <td style="${valueStyle}">3</td><td style="${valueStyle}">&nbsp;</td>
+    <td style="${valueStyle}">Online</td><td style="${valueStyle}">&nbsp;</td><td style="${valueStyle}">&nbsp;</td>
   </tr>
 </table>
 
 <h2 style="${h2Style}">Outreach Messages</h2>
+${divider}
 <table style="${tableStyle}">
   ${row('Request to Connect', data.requestToConnect)}
   ${row('After Connection', data.afterConnection)}
 </table>
 
 <h2 style="${h2Style}">Phone Screening Questions</h2>
+${divider}
 <table style="${tableStyle}">
   <tr>
-    <td style="${labelStyle}">Question</td>
-    <td style="${labelStyle}">Answer</td>
+    <td style="${thStyle};width:50%;">Question</td>
+    <td style="${thStyle};">Answer</td>
   </tr>
-  <tr>
-    <td colspan="2" style="background:#e8f0fe;font-weight:bold;padding:8px 12px;border:1px solid #ccc;">General/Introduction Questions</td>
-  </tr>
+  ${categoryRow('General/Introduction Questions')}
   ${qaRows(data.generalQuestions)}
-  <tr>
-    <td colspan="2" style="background:#e8f0fe;font-weight:bold;padding:8px 12px;border:1px solid #ccc;">Specific Questions</td>
-  </tr>
+  ${categoryRow('Specific Questions')}
   ${qaRows(data.specificQuestions)}
-  <tr>
-    <td colspan="2" style="background:#e8f0fe;font-weight:bold;padding:8px 12px;border:1px solid #ccc;">Compensation Questions</td>
-  </tr>
+  ${categoryRow('Compensation Questions')}
   ${qaRows(data.compensationQuestions)}
 </table>
 
 <h2 style="${h2Style}">Note Screening Structure</h2>
+${divider}
 <table style="${tableStyle}">
   <tr><td style="${valueStyle}">
     <strong>Firstname Lastname (Nickname)</strong><br>
@@ -219,36 +223,47 @@ function buildPreHuntHTML({ positionName, companyName, seniority, salaryRange, d
 }
 
 function buildJDHTML({ positionName, companyName, data }) {
-  const h2Style = 'background:#4a4a4a;color:white;padding:8px 12px;margin:24px 0 8px 0;font-size:14px;';
-  const sectionStyle = 'padding:8px 0 16px 0;border-bottom:1px solid #eee;';
-  const bulletList = (arr) => (arr || []).map(item => `• ${item}`).join('<br>');
+  const font = 'font-family:Arial,sans-serif;';
+  const h2Style = `color:#D4622A;font-weight:bold;font-size:12pt;margin:28px 0 4px 0;padding-bottom:4px;border-bottom:1.5px solid #e0e0e0;${font}`;
+  const divider = '<hr style="border:none;border-top:1px solid #e0e0e0;margin:6px 0 14px 0;">';
+  const sectionStyle = 'margin:0 0 8px 0;line-height:1.7;color:#111;';
+  const bullets = (arr) => (arr || []).map(item => `• &nbsp;${item}`).join('<br>');
 
-  return `<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;font-size:12px;margin:32px;">
+  return `<!DOCTYPE html><html><body style="${font}font-size:11pt;margin:40px 48px;color:#111;">
 
-<h1 style="font-size:20px;margin-bottom:4px;">${companyName}: ${positionName}</h1>
+<h1 style="font-size:20pt;font-weight:bold;color:#2D2B6B;margin-bottom:6px;${font}">${companyName}: ${positionName}</h1>
+${divider}
 
 <h2 style="${h2Style}">About the Company</h2>
+${divider}
 <p style="${sectionStyle}">${data.aboutCompany}</p>
 
 <h2 style="${h2Style}">About the Role</h2>
+${divider}
 <p style="${sectionStyle}">${data.aboutRole}</p>
 
 <h2 style="${h2Style}">Responsibilities</h2>
-<p style="${sectionStyle}">${bulletList(data.responsibilities)}</p>
+${divider}
+<p style="${sectionStyle}">${bullets(data.responsibilities)}</p>
 
 <h2 style="${h2Style}">Qualifications</h2>
-<p style="${sectionStyle}">${bulletList(data.qualifications)}</p>
+${divider}
+<p style="${sectionStyle}">${bullets(data.qualifications)}</p>
 
 <h2 style="${h2Style}">Language Proficiency</h2>
+${divider}
 <p style="${sectionStyle}">${data.languageProficiency || 'Thai (Native), English (Conversational or above)'}</p>
 
 <h2 style="${h2Style}">Benefits</h2>
-<p style="${sectionStyle}">${bulletList(data.benefits)}</p>
+${divider}
+<p style="${sectionStyle}">${bullets(data.benefits)}</p>
 
 <h2 style="${h2Style}">Working Conditions</h2>
+${divider}
 <p style="${sectionStyle}">${data.workingConditions}</p>
 
 <h2 style="${h2Style}">Learn More About the Company</h2>
+${divider}
 <p style="${sectionStyle}">${data.learnMore}</p>
 
 </body></html>`;
