@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import StatusBadge from './StatusBadge';
 import InlineName from './InlineName';
-import GenerateModal from './GenerateModal';
+import GenerateIntakeModal from './GenerateIntakeModal';
 
 const FOLDER_MIME = 'application/vnd.google-apps.folder';
 
@@ -145,10 +145,10 @@ export default function ClientTable({ files, loading, onOpenFolder, onDelete, on
       {folders.length === 0 && docs.length === 0 && !loading && <EmptyState />}
 
       {generateFolder && (
-        <GenerateModal
+        <GenerateIntakeModal
           folder={generateFolder}
           onClose={() => setGenerateFolder(null)}
-          onDone={() => { onRefresh?.(); }}
+          onDone={() => { setGenerateFolder(null); onRefresh?.(); }}
         />
       )}
     </div>
