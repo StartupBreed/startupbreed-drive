@@ -78,13 +78,13 @@ Return ONLY a valid JSON object with exactly two keys: "preHunt" and "jobDescrip
 }
 
 function buildPreHuntHTML({ positionName, companyName, seniority, salaryRange, data }) {
-  const font = 'font-family:Arial,sans-serif;';
-  const tableStyle = `width:100%;border-collapse:collapse;margin-bottom:8px;${font}font-size:11pt;`;
-  const labelStyle = 'padding:10px 14px;border:1px solid #d0d0d0;width:30%;vertical-align:top;color:#333;';
-  const valueStyle = 'padding:10px 14px;border:1px solid #d0d0d0;vertical-align:top;color:#111;';
-  const thStyle = 'padding:10px 14px;border:1px solid #d0d0d0;vertical-align:top;color:#333;font-weight:bold;background:#f9f9f9;';
-  const h2Style = `color:#D4622A;font-weight:bold;font-size:12pt;margin:28px 0 4px 0;padding-bottom:4px;border-bottom:1.5px solid #e0e0e0;${font}`;
-  const divider = '<hr style="border:none;border-top:1px solid #e0e0e0;margin:6px 0 14px 0;">';
+  const poppins = "font-family:'Poppins',Arial,sans-serif;";
+  const tableStyle = `width:100%;border-collapse:collapse;margin-bottom:8px;font-size:10pt;`;
+  const labelStyle = `padding:10px 14px;border:1px solid #000;width:32%;vertical-align:top;color:#000;background:#F7F7F7;${poppins}font-size:10pt;`;
+  const valueStyle = `padding:10px 14px;border:1px solid #000;vertical-align:top;color:#000;${poppins}font-size:10pt;`;
+  const thStyle = `padding:10px 14px;border:1px solid #000;vertical-align:top;color:#000;font-weight:600;background:#F7F7F7;${poppins}font-size:10pt;`;
+  const h2Style = `color:#424495;font-weight:600;font-size:10pt;margin:24px 0 2px 0;${poppins}`;
+  const divider = '<hr style="border:none;border-top:1.5px solid #a0a0a0;margin:4px 0 10px 0;">';
   const tbc = '<span style="color:#aaa">To be confirmed</span>';
 
   const row = (label, value) => `
@@ -103,15 +103,15 @@ function buildPreHuntHTML({ positionName, companyName, seniority, salaryRange, d
 
   const categoryRow = (label) => `
     <tr>
-      <td colspan="2" style="background:#f0f0f0;font-weight:bold;padding:8px 14px;border:1px solid #d0d0d0;color:#333;">${label}</td>
+      <td colspan="2" style="font-weight:600;padding:8px 14px;border:1px solid #000;color:#000;background:#F7F7F7;${poppins}font-size:10pt;">${label}</td>
     </tr>`;
 
-  return `<!DOCTYPE html><html><body style="${font}font-size:11pt;margin:40px 48px;color:#111;">
+  return `<!DOCTYPE html><html><head><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"></head><body style="${poppins}font-size:10pt;margin:40px 48px;color:#000;">
 
-<h1 style="font-size:20pt;font-weight:bold;color:#2D2B6B;margin-bottom:6px;${font}">Position Name: ${positionName}</h1>
+<h1 style="font-size:15pt;font-weight:600;color:#424495;margin-bottom:4px;${poppins}">Position Name: ${positionName}</h1>
 ${divider}
-<p style="margin:6px 0;">Company: &nbsp;<strong>${companyName}</strong></p>
-<p style="margin:6px 0 20px 0;">Company Intake: &nbsp;See Client Intake_ ${companyName}</p>
+<p style="margin:6px 0;${poppins}font-size:10pt;">Company: &nbsp;<strong>${companyName}</strong></p>
+<p style="margin:6px 0 16px 0;${poppins}font-size:10pt;">Company Intake: &nbsp;See Client Intake_ ${companyName}</p>
 ${divider}
 
 <h2 style="${h2Style}">PoC Contact Details</h2>
@@ -166,10 +166,10 @@ ${divider}
 <table style="${tableStyle}">
   <tr>
     <td style="${thStyle};width:5%;">No.</td>
-    <td style="${thStyle};">Interview Process</td>
-    <td style="${thStyle};">Type</td>
-    <td style="${thStyle};">By Who</td>
-    <td style="${thStyle};">What is being assessed?</td>
+    <td style="${thStyle}">Interview Process</td>
+    <td style="${thStyle}">Type</td>
+    <td style="${thStyle}">By Who</td>
+    <td style="${thStyle}">What is being assessed?</td>
   </tr>
   <tr>
     <td style="${valueStyle}">1</td><td style="${valueStyle}">&nbsp;</td>
@@ -197,7 +197,7 @@ ${divider}
 <table style="${tableStyle}">
   <tr>
     <td style="${thStyle};width:50%;">Question</td>
-    <td style="${thStyle};">Answer</td>
+    <td style="${thStyle}">Answer</td>
   </tr>
   ${categoryRow('General/Introduction Questions')}
   ${qaRows(data.generalQuestions)}
@@ -223,15 +223,15 @@ ${divider}
 }
 
 function buildJDHTML({ positionName, companyName, data }) {
-  const font = 'font-family:Arial,sans-serif;';
-  const h2Style = `color:#D4622A;font-weight:bold;font-size:12pt;margin:28px 0 4px 0;padding-bottom:4px;border-bottom:1.5px solid #e0e0e0;${font}`;
-  const divider = '<hr style="border:none;border-top:1px solid #e0e0e0;margin:6px 0 14px 0;">';
-  const sectionStyle = 'margin:0 0 8px 0;line-height:1.7;color:#111;';
+  const poppins = "font-family:'Poppins',Arial,sans-serif;";
+  const h2Style = `color:#424495;font-weight:600;font-size:10pt;margin:24px 0 2px 0;${poppins}`;
+  const divider = '<hr style="border:none;border-top:1.5px solid #a0a0a0;margin:4px 0 10px 0;">';
+  const sectionStyle = `margin:0 0 8px 0;line-height:1.7;color:#000;${poppins}font-size:10pt;`;
   const bullets = (arr) => (arr || []).map(item => `• &nbsp;${item}`).join('<br>');
 
-  return `<!DOCTYPE html><html><body style="${font}font-size:11pt;margin:40px 48px;color:#111;">
+  return `<!DOCTYPE html><html><head><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"></head><body style="${poppins}font-size:10pt;margin:40px 48px;color:#000;">
 
-<h1 style="font-size:20pt;font-weight:bold;color:#2D2B6B;margin-bottom:6px;${font}">${companyName}: ${positionName}</h1>
+<h1 style="font-size:15pt;font-weight:600;color:#424495;margin-bottom:4px;${poppins}">${companyName}: ${positionName}</h1>
 ${divider}
 
 <h2 style="${h2Style}">About the Company</h2>
