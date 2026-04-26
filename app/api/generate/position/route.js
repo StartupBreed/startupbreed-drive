@@ -24,7 +24,13 @@ async function readClientIntake(drive, clientFolderId) {
 }
 
 function buildPrompt({ positionName, companyName, seniority, salaryRange, additionalNote, intakeContent }) {
-  return `You are a professional recruitment consultant. Using the Client Intake below as company context, generate a Pre-hunt document and a Job Description for this position.
+  return `You are a professional recruitment consultant at a headhunting firm. Using the Client Intake below as company context, generate a Pre-hunt document and a Job Description.
+
+Global rules:
+- Never leave placeholder text in output. Replace every field with real generated content.
+- Use [To be confirmed] only for fields that genuinely require real client input: PoC contact details, Interview Process rows, Package Details, Candidate Start Date.
+- Keep all language professional, warm, and written for a candidate reading it.
+- If Additional Notes are provided, extract relevant info and map to the correct fields.
 
 CLIENT INTAKE (company context):
 ${intakeContent || `Company: ${companyName}. No intake available — infer from company name.`}
@@ -40,34 +46,34 @@ Return ONLY a valid JSON object with exactly two keys: "preHunt" and "jobDescrip
 
 "preHunt" should be an object with these keys:
 {
-  "similarJobTitles": "2-3 similar titles",
+  "similarJobTitles": "2-3 similar titles for this role",
   "level": "${seniority || 'To be confirmed'}",
   "salaryRange": "${salaryRange || 'To be confirmed'}",
   "workArrangement": "On-site / Hybrid / Remote — infer from company info",
-  "goalsExpectation": "key goals for first 3-6 months",
-  "teamCulture": "inferred from company culture",
-  "worksWith": "likely teams this role collaborates with",
-  "responsibilities": ["action verb + specific responsibility 1", "...up to 10 total"],
-  "qualifications": ["qualification 1", "..."],
-  "nonNegotiable": ["must-have skill/experience 1", "...up to 6"],
-  "niceToHave": ["nice-to-have skill 1", "...up to 5"],
-  "requestToConnect": "LinkedIn connection request max 300 chars — mention role, company USP, invite to connect",
-  "afterConnection": "warm follow-up message as StartupBreed recruiter, mention key responsibilities, invite to schedule call",
-  "generalQuestions": [{"q": "question", "a": "expected answer"}, {"q": "...", "a": "..."}, {"q": "...", "a": "..."}],
-  "specificQuestions": [{"q": "...", "a": "..."}, {"q": "...", "a": "..."}, {"q": "...", "a": "..."}, {"q": "...", "a": "..."}, {"q": "...", "a": "..."}, {"q": "...", "a": "..."}],
-  "compensationQuestions": [{"q": "...", "a": "..."}, {"q": "...", "a": "..."}, {"q": "...", "a": "..."}, {"q": "...", "a": "..."}]
+  "goalsExpectation": "Key goals and expectations for the first 3-6 months in this specific role",
+  "teamCulture": "Inferred from company culture in the intake",
+  "worksWith": "Likely teams and stakeholders this role collaborates with",
+  "responsibilities": ["Write 8-10 bullet points. Each starts with an action verb. Tailor every point to the exact role, company stage, and industry. Do not copy-paste from a generic job description. Make each point specific and meaningful.", "..."],
+  "qualifications": ["Required and preferred qualifications — education, certifications, years of experience specific to this role", "..."],
+  "nonNegotiable": ["Must-have skill or experience 1 — absolutely necessary for success in this role", "...up to 6"],
+  "niceToHave": ["Desirable but not essential skill 1", "...up to 5"],
+  "requestToConnect": "LinkedIn Request to Connect — max 300 characters. Brief and professional. Emphasize candidate alignment with key aspects of the role. Highlight company USPs. Invite to connect. Example style: Hi K.Name, we are looking for a ${positionName} (${salaryRange || 'competitive salary'}) for ${companyName}; a leading [company description]. The company offers [USP]. May I tell you more?",
+  "afterConnection": "LinkedIn message after connection. Express that you represent StartupBreed as the recruiter. Highlight main responsibilities and skills needed. Encourage scheduling a call. Mention attaching the JD. Friendly, professional, rapport-building tone.",
+  "generalQuestions": [{"q": "General/intro question 1", "a": "Short, clear, realistic expected answer demonstrating relevant experience"}, {"q": "...", "a": "..."}, {"q": "...", "a": "..."}],
+  "specificQuestions": [{"q": "Specific question 1 tailored to this exact role and company", "a": "Expected answer showing technical and role-specific knowledge"}, {"q": "...", "a": "..."}, {"q": "...", "a": "..."}, {"q": "...", "a": "..."}, {"q": "...", "a": "..."}, {"q": "...", "a": "..."}],
+  "compensationQuestions": [{"q": "Compensation question 1", "a": "Expected answer"}, {"q": "...", "a": "..."}, {"q": "...", "a": "..."}, {"q": "...", "a": "..."}]
 }
 
 "jobDescription" should be an object with these keys:
 {
-  "aboutCompany": "3-4 sentences: mission, values, culture, achievements — written for a candidate",
-  "aboutRole": "2-3 sentences on purpose of role and how it fits the company",
-  "responsibilities": ["bullet 1", "...up to 10"],
-  "qualifications": ["required and preferred qualifications"],
-  "languageProficiency": "required languages and level",
-  "benefits": ["benefit 1", "benefit 2", "..."],
-  "workingConditions": "location, remote/on-site, hours",
-  "learnMore": "website and LinkedIn links"
+  "aboutCompany": "3-4 sentences covering mission, values, culture, and notable achievements. Written for a candidate reading about the company for the first time.",
+  "aboutRole": "2-3 sentences on the purpose of this role and how it fits into the overall company structure.",
+  "responsibilities": ["8-10 bullet points. Each starts with an action verb. Specific to this role and company — not generic.", "..."],
+  "qualifications": ["Required and preferred: education, skills, years of experience, certifications", "..."],
+  "languageProficiency": "Required and preferred languages and proficiency level",
+  "benefits": ["List company benefits from intake if available, or Competitive package — details to be confirmed", "..."],
+  "workingConditions": "Location, remote/on-site/hybrid, working hours",
+  "learnMore": "Website and LinkedIn from intake"
 }`;
 }
 

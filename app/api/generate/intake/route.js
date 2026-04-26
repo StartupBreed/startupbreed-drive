@@ -7,7 +7,14 @@ import { authOptions } from '../../auth/[...nextauth]/route';
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 function buildPrompt({ companyName, website, linkedin, additionalNote }) {
-  return `You are a professional recruitment consultant. Research the company "${companyName}" using the website and LinkedIn provided, then fill in every field of the Client Intake form.
+  return `You are a professional recruitment consultant at a headhunting firm. Research the company "${companyName}" using the website and LinkedIn provided, then fill in every field of the Client Intake form.
+
+Global rules:
+- Never leave placeholder text in output. Replace every field with real researched content.
+- Use [To be confirmed] ONLY for Registration Number and fields that genuinely require direct client input.
+- Never invent or guess funding amounts or legal entity names — only state what you can verify from public sources.
+- Keep all language professional, warm, and written for a candidate reading it — not internal notes.
+- If Additional Notes are provided, extract relevant information and map it to the correct fields.
 
 Company Name: ${companyName}
 Website: ${website || 'Not provided'}
@@ -17,22 +24,22 @@ Additional Note: ${additionalNote || 'None'}
 Return ONLY a valid JSON object with exactly these keys. No markdown, no explanation, just the JSON:
 
 {
-  "registeredName": "full legal name if verifiable, otherwise 'To be confirmed'",
+  "registeredName": "Full legal registered name. If you cannot verify with confidence from public sources, write: To be confirmed",
   "registrationNumber": "To be confirmed",
-  "industry": "1-3 word industry label",
-  "companySize": "employee count + brief breakdown sentence",
-  "currentFunding": "funding status, rounds, investors if public — or 'Bootstrapped / Not publicly disclosed'",
-  "officeLocations": "all offices listed",
-  "elevatorPitch": "2-3 professional sentences: what they do, who they serve, what makes them compelling",
-  "mission": "one sentence mission statement",
-  "vision": "one sentence vision statement",
-  "companyBackground": "3-5 sentences: founding year, founders, milestones, current stage",
-  "servicesProducts": ["Product/Service 1 — one sentence", "Product/Service 2 — one sentence"],
-  "usp": ["Specific USP 1", "Specific USP 2", "Specific USP 3", "Specific USP 4"],
-  "targetMarket": ["Primary segment 1", "Primary segment 2"],
-  "mainCompetitors": "Competitor A, Competitor B, Competitor C",
-  "companyCulture": "3-5 sentences about work environment, management style, team dynamics",
-  "qualitiesValued": "5-7 specific employee attributes, each on its own line starting with a dash"
+  "industry": "1-3 word label, e.g. FinTech / Earned Wage Access or Healthcare Technology",
+  "companySize": "Total employee count. If useful add a brief breakdown in one sentence, e.g. ~70 employees, primarily based in Bangkok. Do not write fragmented bullet points.",
+  "currentFunding": "Funding status including recent rounds, amounts raised, key investors if public. Only state what you can verify — do not guess amounts.",
+  "officeLocations": "All office locations including headquarters and regional offices",
+  "elevatorPitch": "2-3 clean professional sentences. Cover what the company does, who it serves, and what makes it compelling to a candidate reading about it for the first time. No bullet points.",
+  "mission": "One sentence using the company's own language where available",
+  "vision": "One sentence using the company's own language where available",
+  "companyBackground": "3-5 sentences covering founding year, founders if notable, key milestones, and current stage or growth trajectory",
+  "servicesProducts": ["[Product/Service Name] — one sentence description", "continue up to 6 total"],
+  "usp": ["Specific, concrete competitive advantage — not generic filler like 'great team'", "up to 6 total, each meaningfully distinct"],
+  "targetMarket": ["Primary customer segment 1", "Primary customer segment 2"],
+  "mainCompetitors": "3-6 direct competitors by name, comma-separated",
+  "companyCulture": "3-5 sentences describing the real work environment. Cover management style, pace, team dynamics, and what it genuinely feels like to work there. No corporate filler like 'we value excellence'. Be specific and honest.",
+  "qualitiesValued": "5-7 specific attributes valued across ALL employees — not just this one role. Make each concrete, e.g. 'Ownership mentality — takes problems from identification to resolution without being asked'. Avoid generic traits like 'hardworking' or 'team player'. Each on its own line."
 }`;
 }
 
