@@ -10,14 +10,30 @@ async function scrapeUrl(url) {
   if (!url) return '';
   try {
     const res = await fetch(`https://r.jina.ai/${url}`, {
-      headers: { 'Accept': 'text/plain', 'X-Timeout': '8' },
-      signal: AbortSignal.timeout(10000),
+      headers: { 'Accept': 'text/plain', 'X-Timeout': '10' },
+      signal: AbortSignal.timeout(12000),
     });
     if (!res.ok) return '';
     const text = await res.text();
-    return text.slice(0, 6000);
+    return text.slice(0, 15000);
   } catch {
     return '';
+  }
+}
+
+async function scrapeWebsite(url) {
+  if (!url) return '';
+  try {
+    const base = new URL(url).origin;
+    const aboutPaths = ['/about', '/about-us', '/company', '/who-we-are', '/our-story'];
+    const pages = await Promise.all([
+      scrapeUrl(url),
+      ...aboutPaths.map(p => scrapeUrl(base + p)),
+    ]);
+    const combined = pages.filter(Boolean).join('\n\n---\n\n');
+    return combined.slice(0, 20000);
+  } catch {
+    return scrapeUrl(url);
   }
 }
 
@@ -32,19 +48,19 @@ function buildPrompt({ companyName, website, linkedin, additionalNote, websiteCo
 
 Client Intake Instructions:
 1. Official Name: Provide the full legal name of the company along with its primary city and country of operation.
-2. Industry: Specify the industry or sector the company operates in (e.g., Technology, Healthcare, Finance).
-3. Company Size (Number of Employees): Indicate the total number of employees.
-4. Current Funding: Detail the current funding status, including recent funding rounds, amounts raised, and key investors if applicable.
-5. Office Location(s): List all office locations, including headquarters and any regional offices.
-6. Elevator Pitch: Craft a concise and compelling summary of the company's value proposition.
-7. Mission/Vision: Outline the company's mission statement and long-term vision.
-8. Company Background: Provide a brief history of the company, including founding date, key milestones, and significant achievements.
-9. Services/Products: Describe the main services or products offered by the company.
-10. Unique Selling Points (USP): Highlight what sets the company apart from its competitors.
-11. Target Market: Define the primary audience or customer segments the company serves.
-12. Main Competitors: Identify key competitors in the industry.
-13. Company Culture: Describe the work environment, values, and cultural aspects that define the company.
-14. Qualities Valued Most in Employees: List the key attributes and skills the company seeks in its employees.
+2. Industry: Specify the industry or sector the company operates in (e.g., Technology, Healthcare, Finance). Be specific — use sub-sector where relevant (e.g. B2B SaaS / HR Tech, not just "Technology").
+3. Company Size (Number of Employees): Indicate the total number of employees. Include a breakdown by location or team if available (e.g. ~120 employees, 80 in Bangkok, 40 in Singapore).
+4. Current Funding: Detail the current funding status, including recent funding rounds, amounts raised, investors, and valuation if known. Be specific — include Series stage, year, and named investors.
+5. Office Location(s): List all office locations including headquarters and any regional offices. Include city and country for each.
+6. Elevator Pitch: Craft a compelling 3–4 sentence summary covering what the company does, who it serves, the core problem it solves, and what makes it stand out. Write for a candidate hearing about the company for the first time.
+7. Mission/Vision: Outline the company's mission statement and long-term vision. Use the company's own language where available.
+8. Company Background: Provide a detailed history — founding year, founders and their backgrounds, key milestones, pivots, growth trajectory, and current stage. Minimum 4–5 sentences.
+9. Services/Products: Describe each main product or service in detail. For each: name, what it does, who it's for, and why it matters. List all major offerings.
+10. Unique Selling Points (USP): Identify 4–6 concrete, specific things that set this company apart. Avoid generic phrases — back each USP with a specific reason or example.
+11. Target Market: Define all primary customer segments the company serves. Include industry, company size, geography, or user persona where relevant.
+12. Main Competitors: Identify 4–6 direct competitors by name. Briefly note how this company differentiates from each.
+13. Company Culture: Write 4–5 sentences describing the real work environment — pace, management style, team dynamics, how decisions are made, and what kind of people thrive there.
+14. Qualities Valued Most in Employees: List 5–7 specific traits or behaviours the company looks for. Make each concrete with an example or context (e.g. "Bias for action — ships fast, iterates based on data"). Each on its own line.
 15. Website: Provide the official website URL.
 
 ${websiteContent ? `--- Website Content (${website}) ---
@@ -159,7 +175,7 @@ export async function POST(request) {
   if (!companyName || !folderId) return Response.json({ error: 'Missing required fields' }, { status: 400 });
 
   const [websiteContent, linkedinContent] = await Promise.all([
-    scrapeUrl(website),
+    scrapeWebsite(website),
     scrapeUrl(linkedin),
   ]);
 
@@ -167,7 +183,7 @@ export async function POST(request) {
   try {
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-4-6',
-      max_tokens: 3000,
+      max_tokens: 8000,
       system: 'You are a professional recruitment consultant. Return only valid JSON, no markdown, no explanation.',
       messages: [{ role: 'user', content: buildPrompt({ ...body, websiteContent, linkedinContent }) }],
     });
