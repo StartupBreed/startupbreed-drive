@@ -149,7 +149,7 @@ export async function POST(request) {
   let data;
   try {
     const message = await anthropic.messages.create({
-      model: 'claude-haiku-4-5-20251001',
+      model: 'claude-sonnet-4-6',
       max_tokens: 3000,
       system: 'You are a professional recruitment consultant. Return only valid JSON, no markdown, no explanation.',
       messages: [{ role: 'user', content: buildPrompt(body) }],

@@ -47,36 +47,54 @@ Return ONLY a valid JSON object with exactly two keys: "preHunt" and "jobDescrip
 
 "preHunt" should be an object with these keys:
 {
-  "similarJobTitles": "2-3 similar job titles for this role",
+  "similarJobTitles": "2–3 alternative job titles commonly used for this role",
   "level": "${seniority || 'To be confirmed'}",
   "salaryRange": "${salaryRange || 'To be confirmed'}",
   "workArrangement": "On-site / Hybrid / Remote — infer from company info in intake",
-  "goalsExpectation": "Key goals and expectations for the first 3-6 months in this specific role",
-  "teamCulture": "Inferred from company culture described in the intake",
-  "worksWith": "Likely teams and stakeholders this role collaborates with",
-  "responsibilities": ["Write 8-10 bullet points. Each starts with an action verb. Tailor every point to the exact role, company stage, and industry. Do not copy-paste from a generic job description. Make each point specific and meaningful.", "..."],
+  "goalsExpectation": "Key goals and expectations for the first 3–6 months in this specific role",
+  "teamCulture": "Team culture and dynamics inferred from the company culture described in the intake",
+  "worksWith": "Key teams and stakeholders this role collaborates with closely",
+  "responsibilities": ["Write 8–10 bullet points. Each starts with an action verb. Tailor every point to the exact role, company stage, and industry. Do not copy-paste from a generic job description. Make each point specific and meaningful.", "[Action verb + specific responsibility]", "..."],
   "qualifications": ["List required and preferred qualifications — education, certifications, years of experience specific to this role", "..."],
-  "nonNegotiable": ["Must-have skill or experience — absolutely necessary for success in this role", "...up to 6 total"],
-  "niceToHave": ["Desirable but not essential skill or experience", "...up to 5 total"],
-  "requestToConnect": "LinkedIn Request to Connect — max 300 characters. Brief and professional. Emphasize candidate alignment with key aspects of the role. Highlight company USPs. Invite to connect. Follow this style: Hi K.Name, we are looking for a ${positionName} (${salaryRange || 'competitive salary'}) for ${companyName}; a leading [company description]. The company offers [USP]. May I tell you more? 🙂",
-  "afterConnection": "LinkedIn message after connection. Express that you represent StartupBreed as the recruiter for this client. Highlight the main responsibilities and key skills needed for the ${positionName} role. Encourage the candidate to schedule a call and mention you will attach the JD. Tone: friendly, professional, rapport-building — not salesy.",
-  "generalQuestions": [{"q": "General/introduction question about background and experience", "a": "Short, clear, realistic expected answer in first-person quote style, e.g. 'I have X years of experience in...' demonstrating relevant background"}, {"q": "...", "a": "..."}, {"q": "...", "a": "..."}],
-  "specificQuestions": [{"q": "Specific question tailored to this exact role, company, and industry", "a": "Expected answer showing technical or role-specific knowledge in first-person quote style, e.g. 'In my previous role, I...' — short, clear, realistic"}, {"q": "...", "a": "..."}, {"q": "...", "a": "..."}, {"q": "...", "a": "..."}, {"q": "...", "a": "..."}, {"q": "...", "a": "..."}],
-  "compensationQuestions": [{"q": "Compensation or logistics question", "a": "Expected answer in first-person quote style, e.g. 'My current salary is...' — short and direct"}, {"q": "...", "a": "..."}, {"q": "...", "a": "..."}, {"q": "...", "a": "..."}]
+  "nonNegotiable": ["Must-have skill or experience — absolutely necessary for success in this role", "up to 6 total"],
+  "niceToHave": ["Desirable but not essential skill or experience", "up to 5 total"],
+  "requestToConnect": "LinkedIn Request to Connect — max 300 characters. Brief and professional. Emphasize candidate alignment with key aspects of the role. Highlight company USPs. Invite to connect. Follow this exact style: 'Hi K.Name, we're looking for a ${positionName} (${salaryRange || 'competitive salary'}) for ${companyName}; a leading [one-line company description]. The company offers [key USP]. May I tell you more? 🙂'",
+  "afterConnection": "LinkedIn message after connection. Open by expressing that you represent StartupBreed as the recruiter for this client. Highlight the main responsibilities and key skills needed for the ${positionName} role. Encourage the candidate to schedule a call and mention you will attach the JD. Tone: friendly, professional, rapport-building — not salesy.",
+  "generalQuestions": [
+    {"q": "General or introduction question about the candidate's overall background and experience", "a": "Short, clear, realistic expected answer in first-person quote style, e.g. 'I have X years of experience in...' demonstrating relevant background"},
+    {"q": "...", "a": "..."},
+    {"q": "...", "a": "..."}
+  ],
+  "specificQuestions": [
+    {"q": "Specific question tailored to this exact role, company, and industry — assessing technical or role-specific skills", "a": "Expected answer showing relevant knowledge in first-person quote style, e.g. 'In my previous role, I...' — short, clear, realistic"},
+    {"q": "...", "a": "..."},
+    {"q": "...", "a": "..."},
+    {"q": "...", "a": "..."},
+    {"q": "...", "a": "..."},
+    {"q": "...", "a": "..."}
+  ],
+  "compensationQuestions": [
+    {"q": "Compensation or logistics question (current salary, expectations, notice period, availability)", "a": "Expected answer in first-person quote style, e.g. 'My current salary is...' — short and direct"},
+    {"q": "...", "a": "..."},
+    {"q": "...", "a": "..."},
+    {"q": "...", "a": "..."}
+  ]
 }
 
-Generate 3-4 generalQuestions, 5-7 specificQuestions, and 3-4 compensationQuestions (10-15 total). Each expected answer must be short, clear, concise, and realistic — written in first-person quote style that showcases the candidate's qualifications, leadership abilities, and problem-solving skills.
+Generate 3–4 generalQuestions, 5–7 specificQuestions, and 3–4 compensationQuestions (10–15 total).
+Each expected answer must be short, clear, concise, and realistic — written in first-person quote style that showcases the candidate's qualifications, leadership abilities, and problem-solving skills.
+Assess both technical and soft skills across the specific and general questions.
 
 "jobDescription" should be an object with these keys:
 {
-  "aboutCompany": "3-4 sentences covering mission, values, culture, and notable achievements. Written for a candidate reading about the company for the first time.",
-  "aboutRole": "2-3 sentences on the purpose of this role and how it fits into the overall company structure.",
-  "responsibilities": ["8-10 bullet points. Each starts with an action verb. Specific to this role and company — not generic.", "..."],
-  "qualifications": ["Required and preferred: education, skills, years of experience, certifications", "..."],
-  "languageProficiency": "Required and preferred languages and proficiency level",
-  "benefits": ["List company benefits from intake if available, otherwise write: Competitive package — details to be confirmed", "..."],
-  "workingConditions": "Location, remote/on-site/hybrid, working hours",
-  "learnMore": "Website and LinkedIn URLs from the intake"
+  "aboutCompany": "Brief but informative description of the company including its mission, values, culture, and any notable achievements or industry standing. Written for a candidate reading about the company for the first time.",
+  "aboutRole": "Overview of the position — its primary purpose and how it fits into the overall structure of the company.",
+  "responsibilities": ["8–10 bullet points. Each starts with an action verb. Clear, specific, and comprehensive — not generic.", "..."],
+  "qualifications": ["Required and preferred qualifications: education, skills, years of experience, certifications, and key requirements", "..."],
+  "languageProficiency": "Required or preferred language proficiency for this role",
+  "benefits": ["Company benefits from the intake if available. If not available, write: Competitive package — details to be confirmed", "..."],
+  "workingConditions": "Location, remote/on-site/hybrid arrangement, working hours, and any other relevant working details",
+  "learnMore": "Website and LinkedIn URLs from the intake for candidates to learn more about the company"
 }`;
 }
 
@@ -314,7 +332,7 @@ export async function POST(request) {
   let parsed;
   try {
     const message = await anthropic.messages.create({
-      model: 'claude-haiku-4-5-20251001',
+      model: 'claude-sonnet-4-6',
       max_tokens: 8000,
       system: 'You are a professional recruitment consultant. Return only valid JSON, no markdown, no explanation.',
       messages: [{ role: 'user', content: buildPrompt({ ...body, intakeContent }) }],
