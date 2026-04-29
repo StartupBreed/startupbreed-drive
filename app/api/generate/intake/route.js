@@ -121,18 +121,21 @@ async function buildDocx({ companyName, website, linkedin, date, data }) {
     spacing: { after: 60 },
   });
 
+  const cellPad = { top: 55, bottom: 55, left: 115, right: 115 };
+  const sp = (after = 0) => ({ before: 0, after, line: 240, lineRule: 'auto' });
+
   const lCell = (content) => {
     const children = Array.isArray(content)
       ? content
-      : [new Paragraph({ children: [txt(String(content || ''))], spacing: { before: 0, after: 200 } })];
-    return new TableCell({ width: { size: 3165, type: WidthType.DXA }, borders: cellBorders, shading: shade('F7F7F7'), children });
+      : [new Paragraph({ children: [txt(String(content || ''))], spacing: sp(0) })];
+    return new TableCell({ width: { size: 3165, type: WidthType.DXA }, borders: cellBorders, shading: shade('F7F7F7'), margins: cellPad, children });
   };
 
   const vCell = (content, fill = 'F7F7F7') => {
     const children = Array.isArray(content)
       ? content
-      : [new Paragraph({ children: [txt(String(content || ''))], spacing: { before: 0, after: 200 } })];
-    return new TableCell({ borders: cellBorders, ...(fill ? { shading: shade(fill) } : {}), children });
+      : [new Paragraph({ children: [txt(String(content || ''))], spacing: sp(0) })];
+    return new TableCell({ borders: cellBorders, ...(fill ? { shading: shade(fill) } : {}), margins: cellPad, children });
   };
 
   const simpleRow = (label, value, valueFill = 'F7F7F7') =>
@@ -140,11 +143,11 @@ async function buildDocx({ companyName, website, linkedin, date, data }) {
 
   const toBullets = (val, lastAfter = 80) => {
     const items = Array.isArray(val) ? val : String(val || '').split('\n').filter(Boolean);
-    if (!items.length) return [new Paragraph({ children: [txt('—')], spacing: { before: 0, after: 200 } })];
+    if (!items.length) return [new Paragraph({ children: [txt('—')], spacing: sp(0) })];
     return items.map((item, i) => new Paragraph({
       children: [txt('●  ' + item)],
       indent: { left: 720, hanging: 360 },
-      spacing: { before: 0, after: i === items.length - 1 ? lastAfter : 0 },
+      spacing: sp(i === items.length - 1 ? lastAfter : 0),
     }));
   };
 
@@ -163,8 +166,8 @@ async function buildDocx({ companyName, website, linkedin, date, data }) {
             borders: cellBorders,
             shading: shade('F7F7F7'),
             children: [
-              new Paragraph({ children: [txt('Company Size')], spacing: { before: 0, after: 200 } }),
-              new Paragraph({ children: [txt('(number of employees)', { color: '666666' })], spacing: { before: 0, after: 200 } }),
+              new Paragraph({ children: [txt('Company Size')], spacing: sp(0) }),
+              new Paragraph({ children: [txt('(number of employees)', { color: '666666' })], spacing: sp(0) }),
             ],
           }),
           vCell(String(data.companySize || '—')),
@@ -185,8 +188,8 @@ async function buildDocx({ companyName, website, linkedin, date, data }) {
         children: [
           lCell('Mission / Vision'),
           vCell([
-            new Paragraph({ children: [txt('Mission:  ', { bold: true }), txt(data.mission || '—')], spacing: { before: 0, after: 200 } }),
-            new Paragraph({ children: [txt('Vision:  ', { bold: true }), txt(data.vision || '—')], spacing: { before: 0, after: 200 } }),
+            new Paragraph({ children: [txt('Mission:  ', { bold: true }), txt(data.mission || '—')], spacing: sp(0) }),
+            new Paragraph({ children: [txt('Vision:  ', { bold: true }), txt(data.vision || '—')], spacing: sp(0) }),
           ]),
         ],
       }),
