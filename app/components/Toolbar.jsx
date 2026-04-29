@@ -1,8 +1,8 @@
 'use client';
 import { useRef, useState } from 'react';
 
-export default function Toolbar({ onCreateFolder, onUpload, onRefresh, depth = 0 }) {
-  const folderLabel = depth === 0 ? 'New client' : depth === 1 ? 'New position' : 'New folder';
+export default function Toolbar({ onCreateFolder, onNewPosition, onUpload, onRefresh, depth = 0 }) {
+  const folderLabel = depth === 0 ? 'New client' : 'New folder';
   const [folderName, setFolderName] = useState('');
   const [showInput, setShowInput] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -47,8 +47,16 @@ export default function Toolbar({ onCreateFolder, onUpload, onRefresh, depth = 0
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      {/* New Folder */}
-      {showInput ? (
+      {/* New Position — opens modal at depth 1 */}
+      {depth === 1 && (
+        <button onClick={onNewPosition} className="btn-primary">
+          <FolderPlusIcon />
+          New position
+        </button>
+      )}
+
+      {/* New Folder / New Client — inline input at other depths */}
+      {depth !== 1 && (showInput ? (
         <div className="flex items-center gap-2">
           <input
             type="text"
@@ -70,7 +78,7 @@ export default function Toolbar({ onCreateFolder, onUpload, onRefresh, depth = 0
           <FolderPlusIcon />
           {folderLabel}
         </button>
-      )}
+      ))}
 
       {/* Upload */}
       <button
