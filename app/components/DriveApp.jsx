@@ -10,6 +10,7 @@ import Dashboard from './Dashboard';
 import EmployeeTable from './EmployeeTable';
 import PositionDetailCard from './PositionDetailCard';
 import NewPositionModal from './NewPositionModal';
+import GenerateIntakeModal from './GenerateIntakeModal';
 
 const ROOT_ID = '1dOAe4OwsWtgm0x3l2mZzKsZcK1iR3RuA';
 
@@ -20,6 +21,7 @@ export default function DriveApp({ session }) {
   const [error, setError] = useState(null);
   const [breadcrumb, setBreadcrumb] = useState([{ id: ROOT_ID, name: 'Clients' }]);
   const [showNewPositionModal, setShowNewPositionModal] = useState(false);
+  const [showIntakeModal, setShowIntakeModal] = useState(false);
 
   const currentFolder = breadcrumb[breadcrumb.length - 1];
   // depth: 0 = root (client list), 1 = inside client (positions), 2+ = inside position
@@ -209,6 +211,7 @@ export default function DriveApp({ session }) {
             <Toolbar
               onCreateFolder={handleCreateFolder}
               onNewPosition={() => setShowNewPositionModal(true)}
+              onGenerateIntake={depth === 1 ? () => setShowIntakeModal(true) : undefined}
               onUpload={handleUpload}
               onRefresh={() => fetchFiles(currentFolder.id)}
               depth={depth}
@@ -225,6 +228,17 @@ export default function DriveApp({ session }) {
           onClose={() => setShowNewPositionModal(false)}
           onCreated={() => {
             setShowNewPositionModal(false);
+            fetchFiles(currentFolder.id);
+          }}
+        />
+      )}
+
+      {showIntakeModal && depth === 1 && breadcrumb[1] && (
+        <GenerateIntakeModal
+          folder={breadcrumb[1]}
+          onClose={() => setShowIntakeModal(false)}
+          onDone={() => {
+            setShowIntakeModal(false);
             fetchFiles(currentFolder.id);
           }}
         />

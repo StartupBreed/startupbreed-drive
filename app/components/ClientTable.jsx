@@ -1,13 +1,11 @@
 'use client';
 import { useEffect, useState } from 'react';
 import InlineName from './InlineName';
-import GenerateIntakeModal from './GenerateIntakeModal';
 
 const FOLDER_MIME = 'application/vnd.google-apps.folder';
 
-export default function ClientTable({ files, loading, onOpenFolder, onDelete, onRefresh }) {
+export default function ClientTable({ files, loading, onOpenFolder, onDelete }) {
   const [positionData, setPositionData] = useState({});
-  const [generateFolder, setGenerateFolder] = useState(null);
 
   const folders = files.filter((f) => f.mimeType === FOLDER_MIME);
   const docs = files.filter((f) => f.mimeType !== FOLDER_MIME);
@@ -58,25 +56,15 @@ export default function ClientTable({ files, loading, onOpenFolder, onDelete, on
                       {positions ? `${positions.length} position${positions.length !== 1 ? 's' : ''}` : '—'}
                     </td>
                     <td className="px-5 py-3.5 text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <button
-                          onClick={() => setGenerateFolder(folder)}
-                          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-brand-600 hover:text-brand-700 hover:bg-brand-50 border border-brand-200 transition-colors"
-                          title="Generate Client Intake with AI"
-                        >
-                          <SparkleIcon />
-                          Generate Intake
-                        </button>
-                        <button
-                          onClick={() => {
-                            if (confirm(`Move "${folder.name}" to trash?`)) onDelete(folder.id);
-                          }}
-                          className="text-gray-400 hover:text-red-500 transition-colors p-1"
-                          title="Delete"
-                        >
-                          <TrashIcon />
-                        </button>
-                      </div>
+                      <button
+                        onClick={() => {
+                          if (confirm(`Move "${folder.name}" to trash?`)) onDelete(folder.id);
+                        }}
+                        className="text-gray-400 hover:text-red-500 transition-colors p-1"
+                        title="Delete"
+                      >
+                        <TrashIcon />
+                      </button>
                     </td>
                   </tr>
                 );
@@ -128,14 +116,6 @@ export default function ClientTable({ files, loading, onOpenFolder, onDelete, on
       )}
 
       {folders.length === 0 && docs.length === 0 && !loading && <EmptyState />}
-
-      {generateFolder && (
-        <GenerateIntakeModal
-          folder={generateFolder}
-          onClose={() => setGenerateFolder(null)}
-          onDone={() => { setGenerateFolder(null); onRefresh?.(); }}
-        />
-      )}
     </div>
   );
 }
@@ -163,14 +143,6 @@ function EmptyState() {
       <p className="text-gray-500 font-medium">No clients yet</p>
       <p className="text-gray-400 text-sm mt-1">Create a folder to add your first client.</p>
     </div>
-  );
-}
-
-function SparkleIcon() {
-  return (
-    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3l1.5 3.5L10 8l-3.5 1.5L5 13l-1.5-3.5L0 8l3.5-1.5L5 3zm12 9l1 2.5L20.5 15l-2.5 1L17 18.5l-1-2.5L13.5 15l2.5-1L17 12z" />
-    </svg>
   );
 }
 
