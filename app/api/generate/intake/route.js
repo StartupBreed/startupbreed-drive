@@ -5,7 +5,7 @@ import { Readable } from 'stream';
 import { authOptions } from '../../auth/[...nextauth]/route';
 import {
   Document, Header, Paragraph, TextRun, Table, TableRow, TableCell,
-  ImageRun, Packer, WidthType, BorderStyle, ShadingType,
+  ImageRun, Packer, WidthType, BorderStyle, ShadingType, TableLayoutType,
   HorizontalPositionRelativeFrom, VerticalPositionRelativeFrom,
   TextWrappingType, PageOrientation,
 } from 'docx';
@@ -101,7 +101,7 @@ async function buildDocx({ companyName, website, linkedin, date, data }) {
 
   const txt = (text, opts = {}) => new TextRun({
     text: String(text ?? ''),
-    font: { name: 'Poppins' },
+    font: 'Poppins',
     size: 20,
     ...opts,
   });
@@ -150,6 +150,8 @@ async function buildDocx({ companyName, website, linkedin, date, data }) {
 
   const table1 = new Table({
     width: { size: 9135, type: WidthType.DXA },
+    columnWidths: [3165, 5970],
+    layout: TableLayoutType.FIXED,
     rows: [
       simpleRow('Registered Name', data.registeredName),
       simpleRow('Registration Number', data.registrationNumber),
@@ -175,6 +177,8 @@ async function buildDocx({ companyName, website, linkedin, date, data }) {
 
   const table2 = new Table({
     width: { size: 9165, type: WidthType.DXA },
+    columnWidths: [3135, 6030],
+    layout: TableLayoutType.FIXED,
     rows: [
       simpleRow('Elevator Pitch', data.elevatorPitch),
       new TableRow({
@@ -196,6 +200,8 @@ async function buildDocx({ companyName, website, linkedin, date, data }) {
 
   const table3 = new Table({
     width: { size: 9135, type: WidthType.DXA },
+    columnWidths: [3120, 6015],
+    layout: TableLayoutType.FIXED,
     rows: [
       simpleRow('Company Culture', data.companyCulture),
       simpleRow('Qualities Valued in Employees', data.qualitiesValued),
@@ -204,6 +210,8 @@ async function buildDocx({ companyName, website, linkedin, date, data }) {
 
   const table4 = new Table({
     width: { size: 9195, type: WidthType.DXA },
+    columnWidths: [3165, 6030],
+    layout: TableLayoutType.FIXED,
     rows: [
       simpleRow('Website', website || data.website || '—'),
       simpleRow('LinkedIn', linkedin || '—'),
