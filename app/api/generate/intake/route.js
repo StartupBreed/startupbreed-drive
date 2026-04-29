@@ -117,9 +117,10 @@ function buildHTML({ companyName, website, linkedin, date, data }) {
 </head>
 <body style="${P}font-size:10pt;margin:52px 60px;color:#000;line-height:1.6;">
 
-<div style="position:relative;min-height:36px;margin-bottom:4px;">
-  <img src="data:image/png;base64,${LOGO_B64}" style="position:absolute;top:0;right:0;width:180px;height:auto;" />
-  <h1 style="font-size:15pt;font-weight:600;color:#424495;margin:0;padding:0;padding-right:200px;${P}">Company Name: ${companyName}</h1>
+<div style="margin-bottom:4px;">
+  <img src="data:image/png;base64,${LOGO_B64}" style="float:right;width:180px;height:auto;margin-left:20px;" />
+  <h1 style="font-size:15pt;font-weight:600;color:#424495;margin:0;padding:0;${P}">Company Name: ${companyName}</h1>
+  <div style="clear:both;"></div>
 </div>
 ${HR}
 <p style="margin:0 0 4px 0;padding:0;${P}font-size:10pt;">Intake by: &nbsp;${data.intakeBy || 'StartupBreed'}</p>
