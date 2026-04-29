@@ -3,6 +3,12 @@ import { google } from 'googleapis';
 import Anthropic from '@anthropic-ai/sdk';
 import { Readable } from 'stream';
 import { authOptions } from '../../auth/[...nextauth]/route';
+import {
+  Document, Header, Paragraph, TextRun, Table, TableRow, TableCell,
+  ImageRun, Packer, WidthType, BorderStyle, ShadingType,
+  HorizontalPositionRelativeFrom, VerticalPositionRelativeFrom,
+  TextWrappingType, PageOrientation,
+} from 'docx';
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -90,82 +96,176 @@ Return ONLY a valid JSON object with exactly these keys. No markdown, no explana
 }`;
 }
 
-function buildHTML({ companyName, website, linkedin, date, data }) {
-  const P   = "font-family:'Poppins',Arial,sans-serif;";
-  const H2  = `color:#424495;font-weight:600;font-size:10pt;margin:0 0 2px 0;padding:0;${P}`;
-  const HR  = '<hr style="border:none;border-top:1.5px solid #a0a0a0;margin:0 0 10px 0;padding:0;">';
-  const TBL = `width:100%;border-collapse:collapse;margin:0 0 22px 0;font-size:10pt;`;
-  const LBL = `padding:10px 14px;border:1px solid #000;width:30%;vertical-align:top;line-height:1.6;color:#000;background:#F7F7F7;${P}font-size:10pt;`;
-  const VAL = `padding:10px 14px;border:1px solid #000;vertical-align:top;line-height:1.6;color:#000;${P}font-size:10pt;`;
-  const DASH = '<span style="color:#aaa;font-style:italic;">—</span>';
+async function buildDocx({ companyName, website, linkedin, date, data }) {
+  const logoBuffer = Buffer.from(LOGO_B64, 'base64');
 
-  const row = (label, value) => `
-    <tr>
-      <td style="${LBL}">${label}</td>
-      <td style="${VAL}">${value || DASH}</td>
-    </tr>`;
+  const txt = (text, opts = {}) => new TextRun({
+    text: String(text ?? ''),
+    font: { name: 'Poppins' },
+    size: 20,
+    ...opts,
+  });
 
-  const bullets = (arr) =>
-    `<ul style="margin:2px 0 0 0;padding-left:20px;">${(arr || []).map(i =>
-      `<li style="margin-bottom:4px;line-height:1.6;">${i}</li>`).join('')}</ul>`;
+  const CB = { style: BorderStyle.SINGLE, size: 4, color: '000000' };
+  const cellBorders = { top: CB, bottom: CB, left: CB, right: CB };
+  const shade = (fill) => ({ fill, type: ShadingType.CLEAR, color: 'auto' });
 
-  return `<!DOCTYPE html>
-<html>
-<head>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-  <style>* { box-sizing: border-box; } body { margin:0; padding:0; }</style>
-</head>
-<header>
-  <div style="text-align:right;padding:8px 60px 4px 60px;">
-    <img src="data:image/png;base64,${LOGO_B64}" style="width:180px;height:auto;" />
-  </div>
-</header>
-<body style="${P}font-size:10pt;margin:52px 60px;color:#000;line-height:1.6;">
+  const divider = () => new Paragraph({
+    children: [],
+    border: { bottom: { style: BorderStyle.SINGLE, size: 6, color: 'A0A0A0', space: 1 } },
+    spacing: { after: 100 },
+  });
 
-<h1 style="font-size:15pt;font-weight:600;color:#424495;margin:0 0 4px 0;padding:0;${P}">Company Name: ${companyName}</h1>
-${HR}
-<p style="margin:0 0 4px 0;padding:0;${P}font-size:10pt;">Intake by: &nbsp;${data.intakeBy || 'StartupBreed'}</p>
-<p style="margin:0 0 16px 0;padding:0;${P}font-size:10pt;">Date: &nbsp;${date}</p>
-${HR}
+  const sectionHead = (text) => new Paragraph({
+    children: [txt(text, { bold: true, color: '424495' })],
+    spacing: { after: 60 },
+  });
 
-<h2 style="${H2}">General Information</h2>
-${HR}
-<table style="${TBL}">
-  ${row('Registered Name', data.registeredName)}
-  ${row('Registration Number', data.registrationNumber)}
-  ${row('Job Industry', data.industry)}
-  ${row('Company Size<br><span style="font-weight:400;font-size:9pt;color:#666;">(number of employees)</span>', data.companySize)}
-  ${row('Current Funding', data.currentFunding)}
-  ${row('Office Location(s)', data.officeLocations)}
-</table>
+  const lCell = (content) => {
+    const children = Array.isArray(content)
+      ? content
+      : [new Paragraph({ children: [txt(String(content || ''))], spacing: { after: 80 } })];
+    return new TableCell({ width: { size: 3165, type: WidthType.DXA }, borders: cellBorders, shading: shade('F7F7F7'), children });
+  };
 
-<h2 style="${H2}">Company Information</h2>
-${HR}
-<table style="${TBL}">
-  ${row('Elevator Pitch', data.elevatorPitch)}
-  ${row('Mission / Vision', `<strong>Mission:</strong>&nbsp; ${data.mission}<br><br><strong>Vision:</strong>&nbsp; ${data.vision}`)}
-  ${row('Company Background', data.companyBackground)}
-  ${row('Services / Products', bullets(data.servicesProducts))}
-  ${row('Unique Selling Points (USP)', bullets(data.usp))}
-  ${row('Target Market', bullets(data.targetMarket))}
-  ${row('Main Competitors', bullets((data.mainCompetitors || '').split(',').map(s => s.trim())))}
-</table>
+  const vCell = (content, fill = 'F7F7F7') => {
+    const children = Array.isArray(content)
+      ? content
+      : [new Paragraph({ children: [txt(String(content || ''))], spacing: { after: 80 } })];
+    return new TableCell({ borders: cellBorders, ...(fill ? { shading: shade(fill) } : {}), children });
+  };
 
-<h2 style="${H2}">Company Culture &amp; Values</h2>
-${HR}
-<table style="${TBL}">
-  ${row('Company Culture', data.companyCulture)}
-  ${row('Qualities Valued in Employees', data.qualitiesValued)}
-</table>
+  const simpleRow = (label, value, valueFill = 'F7F7F7') =>
+    new TableRow({ children: [lCell(label), vCell(String(value || '—'), valueFill)] });
 
-<h2 style="${H2}">Resources</h2>
-${HR}
-<table style="${TBL}">
-  ${row('Website', website ? `<a href="${website}" style="color:#1155CC;">${website}</a>` : DASH)}
-  ${row('LinkedIn', linkedin ? `<a href="${linkedin}" style="color:#1155CC;">${linkedin}</a>` : DASH)}
-</table>
+  const toBullets = (val) => {
+    const items = Array.isArray(val) ? val : String(val || '').split('\n').filter(Boolean);
+    if (!items.length) return [new Paragraph({ children: [txt('—')], spacing: { after: 80 } })];
+    return items.map((item, i) => new Paragraph({
+      children: [txt('●  ' + item)],
+      indent: { left: 720, hanging: 360 },
+      spacing: { after: i === items.length - 1 ? 80 : 0 },
+    }));
+  };
 
-</body></html>`;
+  const table1 = new Table({
+    width: { size: 9135, type: WidthType.DXA },
+    rows: [
+      simpleRow('Registered Name', data.registeredName),
+      simpleRow('Registration Number', data.registrationNumber),
+      simpleRow('Job Industry', data.industry),
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 3165, type: WidthType.DXA },
+            borders: cellBorders,
+            shading: shade('F7F7F7'),
+            children: [
+              new Paragraph({ children: [txt('Company Size')], spacing: { after: 60 } }),
+              new Paragraph({ children: [txt('(number of employees)', { color: '666666' })], spacing: { after: 80 } }),
+            ],
+          }),
+          vCell(String(data.companySize || '—')),
+        ],
+      }),
+      simpleRow('Current Funding', data.currentFunding),
+      simpleRow('Office Location(s)', data.officeLocations, null),
+    ],
+  });
+
+  const table2 = new Table({
+    width: { size: 9165, type: WidthType.DXA },
+    rows: [
+      simpleRow('Elevator Pitch', data.elevatorPitch),
+      new TableRow({
+        children: [
+          lCell('Mission / Vision'),
+          vCell([
+            new Paragraph({ children: [txt('Mission:  ', { bold: true }), txt(data.mission || '—')], spacing: { after: 80 } }),
+            new Paragraph({ children: [txt('Vision:  ', { bold: true }), txt(data.vision || '—')], spacing: { after: 80 } }),
+          ]),
+        ],
+      }),
+      simpleRow('Company Background', data.companyBackground),
+      new TableRow({ children: [lCell('Services / Products'), vCell(toBullets(data.servicesProducts))] }),
+      new TableRow({ children: [lCell('Unique Selling Points (USP)'), vCell(toBullets(data.usp))] }),
+      new TableRow({ children: [lCell('Target Market'), vCell(toBullets(data.targetMarket))] }),
+      simpleRow('Main Competitors', data.mainCompetitors, null),
+    ],
+  });
+
+  const table3 = new Table({
+    width: { size: 9135, type: WidthType.DXA },
+    rows: [
+      simpleRow('Company Culture', data.companyCulture),
+      simpleRow('Qualities Valued in Employees', data.qualitiesValued),
+    ],
+  });
+
+  const table4 = new Table({
+    width: { size: 9195, type: WidthType.DXA },
+    rows: [
+      simpleRow('Website', website || data.website || '—'),
+      simpleRow('LinkedIn', linkedin || '—'),
+    ],
+  });
+
+  const spacer = () => new Paragraph({ children: [], spacing: { after: 200 } });
+
+  const doc = new Document({
+    sections: [{
+      properties: {
+        page: {
+          size: { width: 11906, height: 16838, orientation: PageOrientation.PORTRAIT },
+          margin: { top: 1080, bottom: 1080, left: 1080, right: 1110, header: 288, footer: 720 },
+        },
+      },
+      headers: {
+        default: new Header({
+          children: [new Paragraph({
+            children: [new ImageRun({
+              type: 'png',
+              data: logoBuffer,
+              transformation: { width: 148, height: 24 },
+              floating: {
+                horizontalPosition: { relative: HorizontalPositionRelativeFrom.PAGE, offset: 5769864 },
+                verticalPosition: { relative: VerticalPositionRelativeFrom.PAGE, offset: 219456 },
+                wrap: { type: TextWrappingType.NONE },
+              },
+            })],
+          })],
+        }),
+      },
+      children: [
+        new Paragraph({
+          children: [txt(`Company Name: ${companyName}`, { bold: true, size: 30, color: '424495' })],
+          spacing: { after: 60 },
+        }),
+        divider(),
+        new Paragraph({ children: [txt(`Intake by:  ${data.intakeBy || 'StartupBreed'}`)], spacing: { after: 60 } }),
+        new Paragraph({ children: [txt(`Date:  ${date}`)], spacing: { after: 200 } }),
+        divider(),
+        sectionHead('General Information'),
+        divider(),
+        table1,
+        spacer(),
+        sectionHead('Company Information'),
+        divider(),
+        table2,
+        spacer(),
+        sectionHead('Company Culture & Values'),
+        divider(),
+        table3,
+        spacer(),
+        sectionHead('Resources'),
+        divider(),
+        table4,
+        spacer(),
+      ],
+    }],
+  });
+
+  return Packer.toBuffer(doc);
 }
 
 export async function POST(request) {
@@ -198,7 +298,7 @@ export async function POST(request) {
   }
 
   const date = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
-  const html = buildHTML({ companyName, website, linkedin, date, data });
+  const docxBuffer = await buildDocx({ companyName, website, linkedin, date, data });
 
   const auth = new google.auth.OAuth2();
   auth.setCredentials({ access_token: session.access_token });
@@ -207,11 +307,13 @@ export async function POST(request) {
   try {
     const res = await drive.files.create({
       requestBody: {
-        name: `Client Intake_ ${companyName}`,
+        name: `Client Intake_ ${companyName}.docx`,
         parents: [folderId],
-        mimeType: 'application/vnd.google-apps.document',
       },
-      media: { mimeType: 'text/html', body: Readable.from(html) },
+      media: {
+        mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        body: Readable.from(docxBuffer),
+      },
       fields: 'id, name',
     });
     return Response.json({ success: true, file: res.data });
