@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 
 const SENIORITY_LEVELS = ['Entry', 'Mid', 'Senior', 'Management', 'Executive'];
-const STATUSES = ['active', 'paused', 'inactive', 'closed'];
+const STATUSES = ['active', 'on-hold', 'closed'];
 
 function formatSalaryRange(min, max) {
   if (!min && !max) return '';
@@ -24,7 +24,7 @@ export default function PositionModal({ file, onClose, onSaved }) {
   }, []);
 
   const [form, setForm] = useState({
-    status: p.status || 'inactive',
+    status: p.status || 'active',
     manager: p.manager || '',
     support: p.support || '',
     seniority: p.seniority || '',
@@ -91,7 +91,9 @@ export default function PositionModal({ file, onClose, onSaved }) {
           <Field label="Status">
             <select value={form.status} onChange={set('status')} className={inputCls}>
               {STATUSES.map((s) => (
-                <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
+                <option key={s} value={s}>
+                  {s === 'on-hold' ? 'On Hold' : s.charAt(0).toUpperCase() + s.slice(1)}
+                </option>
               ))}
             </select>
           </Field>

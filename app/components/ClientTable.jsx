@@ -7,10 +7,10 @@ import GenerateIntakeModal from './GenerateIntakeModal';
 const FOLDER_MIME = 'application/vnd.google-apps.folder';
 
 function deriveClientStatus(positions) {
-  const statuses = positions.map((p) => p.properties?.status || 'inactive');
+  const statuses = positions.map((p) => p.properties?.status || 'active');
   if (statuses.includes('active')) return 'active';
-  if (statuses.includes('paused')) return 'paused';
-  return 'inactive';
+  if (statuses.includes('on-hold')) return 'on-hold';
+  return 'closed';
 }
 
 export default function ClientTable({ files, loading, onOpenFolder, onDelete, onRefresh }) {
@@ -77,10 +77,10 @@ export default function ClientTable({ files, loading, onOpenFolder, onDelete, on
                         <button
                           onClick={() => setGenerateFolder(folder)}
                           className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-brand-600 hover:text-brand-700 hover:bg-brand-50 border border-brand-200 transition-colors"
-                          title="Generate documents with AI"
+                          title="Generate Client Intake with AI"
                         >
                           <SparkleIcon />
-                          Generate
+                          Generate Intake
                         </button>
                         <button
                           onClick={() => {

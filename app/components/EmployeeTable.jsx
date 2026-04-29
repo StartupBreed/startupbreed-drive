@@ -48,7 +48,7 @@ export default function EmployeeTable() {
         );
         result[emp.id] = {
           active: mine.filter((p) => p.properties?.status === 'active').length,
-          paused: mine.filter((p) => p.properties?.status === 'paused').length,
+          onHold: mine.filter((p) => p.properties?.status === 'on-hold').length,
           closed: mine.filter((p) => p.properties?.status === 'closed').length,
         };
       });
@@ -139,7 +139,7 @@ export default function EmployeeTable() {
                 <th className="text-left px-5 py-3">Full Name</th>
                 <th className="text-left px-5 py-3">Nickname</th>
                 <th className="text-left px-5 py-3">Active</th>
-                <th className="text-left px-5 py-3">Paused</th>
+                <th className="text-left px-5 py-3">On Hold</th>
                 <th className="text-left px-5 py-3">Closed</th>
                 <th className="px-5 py-3" />
               </tr>
@@ -166,7 +166,7 @@ export default function EmployeeTable() {
                       <CountBadge value={c?.active} scanning={scanning} color="bg-green-50 text-green-700" />
                     </td>
                     <td className="px-5 py-4">
-                      <CountBadge value={c?.paused} scanning={scanning} color="bg-amber-50 text-amber-700" />
+                      <CountBadge value={c?.onHold} scanning={scanning} color="bg-amber-50 text-amber-700" />
                     </td>
                     <td className="px-5 py-4">
                       <CountBadge value={c?.closed} scanning={scanning} color="bg-indigo-50 text-indigo-700" />

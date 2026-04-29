@@ -21,7 +21,7 @@ export default function PositionDetailCard({ folder, onUpdated }) {
             <h2 className="text-lg font-bold text-gray-900">{folder.name}</h2>
           </div>
           <div className="flex items-center gap-3 flex-shrink-0">
-            <StatusBadge status={p.status || 'inactive'} />
+            <StatusBadge status={p.status || 'active'} />
             <button
               onClick={() => setModalOpen(true)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 border border-gray-200 transition-colors"

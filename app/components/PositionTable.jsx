@@ -5,13 +5,12 @@ import InlineName from './InlineName';
 import GeneratePositionModal from './GeneratePositionModal';
 
 const FOLDER_MIME = 'application/vnd.google-apps.folder';
-const STATUSES = ['active', 'paused', 'inactive', 'closed'];
+const STATUSES = ['active', 'on-hold', 'closed'];
 
 const statusStyle = {
-  active:   'text-green-700 bg-green-50 border-green-200',
-  paused:   'text-amber-700 bg-amber-50 border-amber-200',
-  inactive: 'text-gray-500 bg-gray-50 border-gray-200',
-  closed:   'text-indigo-700 bg-indigo-50 border-indigo-200',
+  active:    'text-green-700 bg-green-50 border-green-200',
+  'on-hold': 'text-amber-700 bg-amber-50 border-amber-200',
+  closed:    'text-indigo-700 bg-indigo-50 border-indigo-200',
 };
 
 export default function PositionTable({ files, loading, onOpenFolder, onDelete, clientFolder, onRefresh }) {
@@ -87,7 +86,7 @@ export default function PositionTable({ files, loading, onOpenFolder, onDelete, 
                 <tbody className="divide-y divide-gray-100">
                   {folders.map((folder) => {
                     const p = folder.properties || {};
-                    const status = p.status || 'inactive';
+                    const status = p.status || 'active';
                     return (
                       <tr key={folder.id} className="hover:bg-gray-50 transition-colors group">
                         {/* Position name → navigates into folder */}
@@ -109,7 +108,9 @@ export default function PositionTable({ files, loading, onOpenFolder, onDelete, 
                             className={`text-xs border rounded-lg px-2.5 py-1.5 font-medium focus:outline-none focus:ring-2 focus:ring-brand-500 disabled:opacity-50 cursor-pointer ${statusStyle[status]}`}
                           >
                             {STATUSES.map((s) => (
-                              <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
+                              <option key={s} value={s}>
+                                {s === 'on-hold' ? 'On Hold' : s.charAt(0).toUpperCase() + s.slice(1)}
+                              </option>
                             ))}
                           </select>
                         </td>
@@ -134,7 +135,7 @@ export default function PositionTable({ files, loading, onOpenFolder, onDelete, 
 
                         {/* Actions */}
                         <td className="px-5 py-3.5">
-                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="flex items-center gap-1">
                             {clientFolder && (
                               <button
                                 onClick={() => setGenerateFolder(folder)}
@@ -142,7 +143,7 @@ export default function PositionTable({ files, loading, onOpenFolder, onDelete, 
                                 title="Generate Pre-hunt & JD"
                               >
                                 <SparkleIcon />
-                                Generate
+                                Generate Docs
                               </button>
                             )}
                             <button

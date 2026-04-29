@@ -14,8 +14,8 @@ export default function LoginPage() {
                 d="M3 7l9 6 9-6" />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Drive Manager</h1>
-          <p className="text-gray-500 mt-1">Manage your Google Drive files</p>
+          <h1 className="text-2xl font-bold text-gray-900">StartupBreed</h1>
+          <p className="text-gray-500 mt-1">Recruitment pipeline & document hub</p>
         </div>
 
         <button

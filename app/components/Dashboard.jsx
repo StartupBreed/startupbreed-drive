@@ -3,13 +3,12 @@ import { useEffect, useState } from 'react';
 
 const ROOT_ID = '1dOAe4OwsWtgm0x3l2mZzKsZcK1iR3RuA';
 const FOLDER_MIME = 'application/vnd.google-apps.folder';
-const STATUSES = ['active', 'paused', 'inactive', 'closed'];
+const STATUSES = ['active', 'on-hold', 'closed'];
 
 const statusStyle = {
-  active:   'text-green-700 bg-green-50 border-green-200',
-  paused:   'text-amber-700 bg-amber-50 border-amber-200',
-  inactive: 'text-gray-500 bg-gray-50 border-gray-200',
-  closed:   'text-indigo-700 bg-indigo-50 border-indigo-200',
+  active:    'text-green-700 bg-green-50 border-green-200',
+  'on-hold': 'text-amber-700 bg-amber-50 border-amber-200',
+  closed:    'text-indigo-700 bg-indigo-50 border-indigo-200',
 };
 
 export default function Dashboard({ onNavigateTo }) {
@@ -54,18 +53,18 @@ export default function Dashboard({ onNavigateTo }) {
     setUpdating((prev) => ({ ...prev, [rowId]: false }));
   };
 
-  const pipeline = rows.filter((r) => ['active', 'paused'].includes(r.properties?.status || 'inactive'));
-  const closed   = rows.filter((r) => (r.properties?.status || 'inactive') === 'closed');
-  const active   = rows.filter((r) => (r.properties?.status || 'inactive') === 'active');
-  const paused   = rows.filter((r) => (r.properties?.status || 'inactive') === 'paused');
+  const pipeline = rows.filter((r) => ['active', 'on-hold'].includes(r.properties?.status || 'active'));
+  const closed   = rows.filter((r) => r.properties?.status === 'closed');
+  const active   = rows.filter((r) => (r.properties?.status || 'active') === 'active');
+  const onHold   = rows.filter((r) => r.properties?.status === 'on-hold');
 
   return (
     <div className="space-y-6">
       {/* Stat cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <StatCard label="Active"  value={loading ? '—' : active.length}  dot="bg-green-500" />
-        <StatCard label="Paused"  value={loading ? '—' : paused.length}  dot="bg-amber-500" />
-        <StatCard label="Closed"  value={loading ? '—' : closed.length}  dot="bg-indigo-500" />
+        <StatCard label="Active"   value={loading ? '—' : active.length}  dot="bg-green-500" />
+        <StatCard label="On Hold"  value={loading ? '—' : onHold.length}  dot="bg-amber-500" />
+        <StatCard label="Closed"   value={loading ? '—' : closed.length}  dot="bg-indigo-500" />
         <StatCard label="Avg Commission" value={loading ? '—' : avgCommission(active)} dot="bg-purple-400" />
       </div>
 
@@ -151,7 +150,7 @@ function PositionSection({ title, dot, badgeClass, rows, loading, emptyMsg, upda
               <tbody className="divide-y divide-gray-100">
                 {visibleRows.map((row) => {
                   const p = row.properties || {};
-                  const status = p.status || 'inactive';
+                  const status = p.status || 'active';
                   return (
                     <tr key={row.id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-5 py-3.5">
@@ -185,7 +184,9 @@ function PositionSection({ title, dot, badgeClass, rows, loading, emptyMsg, upda
                           className={`text-xs border rounded-lg px-2.5 py-1.5 font-medium focus:outline-none focus:ring-2 focus:ring-brand-500 disabled:opacity-50 cursor-pointer ${statusStyle[status]}`}
                         >
                           {STATUSES.map((s) => (
-                            <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
+                            <option key={s} value={s}>
+                              {s === 'on-hold' ? 'On Hold' : s.charAt(0).toUpperCase() + s.slice(1)}
+                            </option>
                           ))}
                         </select>
                       </td>

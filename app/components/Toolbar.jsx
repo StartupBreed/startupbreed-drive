@@ -58,7 +58,7 @@ export default function Toolbar({ onCreateFolder, onUpload, onRefresh, depth = 0
               if (e.key === 'Enter') handleCreateFolder();
               if (e.key === 'Escape') setShowInput(false);
             }}
-            placeholder="Folder name"
+            placeholder={depth === 0 ? 'Client name' : depth === 1 ? 'Position name' : 'Folder name'}
             autoFocus
             className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
           />

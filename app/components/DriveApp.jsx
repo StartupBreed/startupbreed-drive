@@ -158,7 +158,7 @@ export default function DriveApp({ session }) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7h18M3 12h18M3 17h18" />
             </svg>
           </div>
-          <span className="font-semibold text-gray-900">Drive Manager</span>
+          <span className="font-semibold text-gray-900">StartupBreed</span>
         </div>
 
         {/* Nav tabs */}
