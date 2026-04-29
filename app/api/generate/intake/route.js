@@ -202,7 +202,17 @@ async function buildDocx({ companyName, website, linkedin, date, data }) {
       new TableRow({ children: [lCell('Services / Products'), vCell(toBullets(data.servicesProducts))] }),
       new TableRow({ children: [lCell('Unique Selling Points (USP)'), vCell(toBullets(data.usp))] }),
       new TableRow({ children: [lCell('Target Market'), vCell(toBullets(data.targetMarket, 200))] }),
-      simpleRow('Main Competitors', data.mainCompetitors, null),
+      new TableRow({
+        children: [
+          lCell('Main Competitors'),
+          vCell(toBullets(
+            Array.isArray(data.mainCompetitors)
+              ? data.mainCompetitors
+              : (data.mainCompetitors || '').split(',').map(s => s.trim()).filter(Boolean),
+            80
+          ), null),
+        ],
+      }),
     ],
   });
 
