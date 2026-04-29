@@ -131,14 +131,14 @@ async function buildDocx({ companyName, website, linkedin, date, data }) {
     return new TableCell({ width: { size: 3165, type: WidthType.DXA }, borders: cellBorders, shading: shade('F7F7F7'), margins: cellPad, children });
   };
 
-  const vCell = (content, fill = 'F7F7F7') => {
+  const vCell = (content, fill = 'FFFFFF') => {
     const children = Array.isArray(content)
       ? content
       : [new Paragraph({ children: [txt(String(content || ''))], spacing: sp() })];
     return new TableCell({ borders: cellBorders, ...(fill ? { shading: shade(fill) } : {}), margins: cellPad, children });
   };
 
-  const simpleRow = (label, value, valueFill = 'F7F7F7') =>
+  const simpleRow = (label, value, valueFill = 'FFFFFF') =>
     new TableRow({ children: [lCell(label), vCell(String(value || '—'), valueFill)] });
 
   const toBullets = (val, lastAfter = 80) => {
@@ -237,7 +237,7 @@ async function buildDocx({ companyName, website, linkedin, date, data }) {
           spacing: sp(),
         })]
       : [new Paragraph({ children: [txt('—')], spacing: sp() })];
-    return new TableCell({ borders: cellBorders, shading: shade('F7F7F7'), margins: cellPad, children });
+    return new TableCell({ borders: cellBorders, shading: shade('FFFFFF'), margins: cellPad, children });
   };
 
   const table4 = new Table({
