@@ -48,19 +48,19 @@ Additional Note: ${additionalNote || 'None'}
 Client Intake Instructions:
 1. Official Name: Provide the full legal name of the company along with its primary city and country of operation.
 2. Registration Number: Provide the full registration number of the company.
-3. Industry: Specify the industry or sector the company operates in (e.g., Technology, Healthcare, Finance). Be specific — use sub-sector where relevant (e.g. B2B SaaS / HR Tech, not just "Technology").
-4. Company Size (Number of Employees): Indicate the total number of employees. Include a breakdown by location or team if available (e.g. ~120 employees, 80 in Bangkok, 40 in Singapore).
-5. Current Funding: Detail the current funding status, including recent funding rounds, amounts raised, investors, and valuation if known. Be specific — include Series stage, year, and named investors.
-6. Office Location(s): List all office locations including headquarters and any regional offices. Include city and country for each.
-7. Elevator Pitch: Craft a compelling 3–4 sentence summary covering what the company does, who it serves, the core problem it solves, and what makes it stand out. Write for a candidate hearing about the company for the first time.
-8. Mission/Vision: Outline the company's mission statement and long-term vision. Use the company's own language where available.
-9. Company Background: Provide a detailed history — founding year, founders and their backgrounds, key milestones, pivots, growth trajectory, and current stage. Minimum 4–5 sentences.
-10. Services/Products: Describe each main product or service in detail. For each: name, what it does, who it's for, and why it matters. List all major offerings.
-11. Unique Selling Points (USP): Identify 4–6 concrete, specific things that set this company apart. Avoid generic phrases — back each USP with a specific reason or example.
-12. Target Market: Define all primary customer segments the company serves. Include industry, company size, geography, or user persona where relevant.
-13. Main Competitors: Identify 4–6 direct competitors by name. Briefly note how this company differentiates from each.
-14. Company Culture: Write 4–5 sentences describing the real work environment — pace, management style, team dynamics, how decisions are made, and what kind of people thrive there.
-15. Qualities Valued Most in Employees: List 5–7 specific traits or behaviours the company looks for. Make each concrete with an example or context (e.g. "Bias for action — ships fast, iterates based on data"). Each on its own line.
+3. Industry: Specify the industry or sector the company operates in (e.g., Technology, Healthcare, Finance).
+4. Company Size (Number of Employees): Indicate the total number of employees.
+5. Current Funding: Detail the current funding status, including recent funding rounds, amounts raised, and key investors if applicable.
+6. Office Location(s): List all office locations, including headquarters and any regional offices.
+7. Elevator Pitch: Craft a concise and compelling summary of the company's value proposition.
+8. Mission/Vision: Outline the company's mission statement and long-term vision.
+9. Company Background: Provide a brief history of the company, including founding date, key milestones, and significant achievements.
+10. Services/Products: Describe the main services or products offered by the company.
+11. Unique Selling Points (USP): Highlight what sets the company apart from its competitors.
+12. Target Market: Define the primary audience or customer segments the company serves.
+13. Main Competitors: Identify key competitors in the industry.
+14. Company Culture: Describe the work environment, values, and cultural aspects that define the company.
+15. Qualities Valued Most in Employees: List the key attributes and skills the company seeks in its employees.
 16. Website: Provide the official website URL.
 
 ${websiteContent ? `--- Website Content (${website}) ---
