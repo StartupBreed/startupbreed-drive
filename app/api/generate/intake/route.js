@@ -113,28 +113,28 @@ async function buildDocx({ companyName, website, linkedin, date, data }) {
   const divider = () => new Paragraph({
     children: [],
     border: { bottom: { style: BorderStyle.SINGLE, size: 6, color: 'A0A0A0', space: 1 } },
-    spacing: { after: 100 },
+    spacing: { before: 0, after: 200, line: 240, lineRule: 'auto' },
   });
 
   const sectionHead = (text) => new Paragraph({
     children: [txt(text, { bold: true, color: '424495' })],
-    spacing: { after: 60 },
+    spacing: { before: 0, after: 0, line: 240, lineRule: 'auto' },
   });
 
-  const cellPad = { top: 55, bottom: 55, left: 115, right: 115 };
-  const sp = (after = 0) => ({ before: 0, after, line: 240, lineRule: 'auto' });
+  const cellPad = { top: 100, bottom: 100, left: 100, right: 100 };
+  const sp = (after = 200) => ({ before: 0, after, line: 240, lineRule: 'auto' });
 
   const lCell = (content) => {
     const children = Array.isArray(content)
       ? content
-      : [new Paragraph({ children: [txt(String(content || ''))], spacing: sp(0) })];
+      : [new Paragraph({ children: [txt(String(content || ''))], spacing: sp() })];
     return new TableCell({ width: { size: 3165, type: WidthType.DXA }, borders: cellBorders, shading: shade('F7F7F7'), margins: cellPad, children });
   };
 
   const vCell = (content, fill = 'F7F7F7') => {
     const children = Array.isArray(content)
       ? content
-      : [new Paragraph({ children: [txt(String(content || ''))], spacing: sp(0) })];
+      : [new Paragraph({ children: [txt(String(content || ''))], spacing: sp() })];
     return new TableCell({ borders: cellBorders, ...(fill ? { shading: shade(fill) } : {}), margins: cellPad, children });
   };
 
@@ -143,7 +143,7 @@ async function buildDocx({ companyName, website, linkedin, date, data }) {
 
   const toBullets = (val, lastAfter = 80) => {
     const items = Array.isArray(val) ? val : String(val || '').split('\n').filter(Boolean);
-    if (!items.length) return [new Paragraph({ children: [txt('—')], spacing: sp(0) })];
+    if (!items.length) return [new Paragraph({ children: [txt('—')], spacing: sp() })];
     return items.map((item, i) => new Paragraph({
       children: [txt('●  ' + item)],
       indent: { left: 720, hanging: 360 },
@@ -193,8 +193,8 @@ async function buildDocx({ companyName, website, linkedin, date, data }) {
         children: [
           lCell('Mission / Vision'),
           vCell([
-            new Paragraph({ children: [txt('Mission:  ', { bold: true }), txt(data.mission || '—')], spacing: sp(0) }),
-            new Paragraph({ children: [txt('Vision:  ', { bold: true }), txt(data.vision || '—')], spacing: sp(0) }),
+            new Paragraph({ children: [txt('Mission:  ', { bold: true }), txt(data.mission || '—')], spacing: sp() }),
+            new Paragraph({ children: [txt('Vision:  ', { bold: true }), txt(data.vision || '—')], spacing: sp() }),
           ]),
         ],
       }),
@@ -234,9 +234,9 @@ async function buildDocx({ companyName, website, linkedin, date, data }) {
             link: resolved,
             children: [txt(resolved, { color: '1155CC', underline: {} })],
           })],
-          spacing: sp(0),
+          spacing: sp(),
         })]
-      : [new Paragraph({ children: [txt('—')], spacing: sp(0) })];
+      : [new Paragraph({ children: [txt('—')], spacing: sp() })];
     return new TableCell({ borders: cellBorders, shading: shade('F7F7F7'), margins: cellPad, children });
   };
 
@@ -250,7 +250,7 @@ async function buildDocx({ companyName, website, linkedin, date, data }) {
     ],
   });
 
-  const spacer = () => new Paragraph({ children: [], spacing: { after: 200 } });
+  const spacer = () => new Paragraph({ children: [], spacing: sp() });
 
   const doc = new Document({
     sections: [{
@@ -280,11 +280,11 @@ async function buildDocx({ companyName, website, linkedin, date, data }) {
       children: [
         new Paragraph({
           children: [txt(`Company Name: ${companyName}`, { bold: true, size: 30, color: '424495' })],
-          spacing: { after: 60 },
+          spacing: sp(),
         }),
         divider(),
-        new Paragraph({ children: [txt(`Intake by:  ${data.intakeBy || 'StartupBreed'}`)], spacing: { after: 60 } }),
-        new Paragraph({ children: [txt(`Date:  ${date}`)], spacing: { after: 200 } }),
+        new Paragraph({ children: [txt(`Intake by:  ${data.intakeBy || 'StartupBreed'}`)], spacing: sp() }),
+        new Paragraph({ children: [txt(`Date:  ${date}`)], spacing: sp() }),
         divider(),
         sectionHead('General Information'),
         divider(),
