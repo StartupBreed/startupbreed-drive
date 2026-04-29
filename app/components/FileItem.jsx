@@ -21,7 +21,11 @@ export default function FileItem({ file, onOpenFolder, onDelete, onDownload }) {
     setConfirmDelete(false);
   };
 
-  const driveUrl = `https://drive.google.com/open?id=${file.id}`;
+  const isDocx = file.mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    || file.name?.endsWith('.docx');
+  const driveUrl = isDocx
+    ? `https://docs.google.com/document/d/${file.id}/edit`
+    : `https://drive.google.com/open?id=${file.id}`;
 
   return (
     <div className="group bg-white border border-gray-200 rounded-xl p-4 hover:border-brand-300 hover:shadow-sm transition-all flex flex-col gap-2">
