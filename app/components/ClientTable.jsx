@@ -1,17 +1,9 @@
 'use client';
 import { useEffect, useState } from 'react';
-import StatusBadge from './StatusBadge';
 import InlineName from './InlineName';
 import GenerateIntakeModal from './GenerateIntakeModal';
 
 const FOLDER_MIME = 'application/vnd.google-apps.folder';
-
-function deriveClientStatus(positions) {
-  const statuses = positions.map((p) => p.properties?.status || 'active');
-  if (statuses.includes('active')) return 'active';
-  if (statuses.includes('on-hold')) return 'on-hold';
-  return 'closed';
-}
 
 export default function ClientTable({ files, loading, onOpenFolder, onDelete, onRefresh }) {
   const [positionData, setPositionData] = useState({});
@@ -42,7 +34,6 @@ export default function ClientTable({ files, loading, onOpenFolder, onDelete, on
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">
                 <th className="text-left px-5 py-3 font-semibold text-gray-600">Client</th>
-                <th className="text-left px-5 py-3 font-semibold text-gray-600">Status</th>
                 <th className="text-left px-5 py-3 font-semibold text-gray-600">Positions</th>
                 <th className="px-5 py-3" />
               </tr>
@@ -50,7 +41,6 @@ export default function ClientTable({ files, loading, onOpenFolder, onDelete, on
             <tbody className="divide-y divide-gray-100">
               {folders.map((folder) => {
                 const positions = positionData[folder.id];
-                const status = positions ? deriveClientStatus(positions) : null;
                 return (
                   <tr key={folder.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-5 py-3.5">
@@ -63,11 +53,6 @@ export default function ClientTable({ files, loading, onOpenFolder, onDelete, on
                           className="text-gray-900 hover:text-brand-600"
                         />
                       </div>
-                    </td>
-                    <td className="px-5 py-3.5">
-                      {status ? <StatusBadge status={status} /> : (
-                        <span className="text-gray-300 text-xs">Loading…</span>
-                      )}
                     </td>
                     <td className="px-5 py-3.5 text-gray-500">
                       {positions ? `${positions.length} position${positions.length !== 1 ? 's' : ''}` : '—'}
@@ -161,7 +146,6 @@ function TableSkeleton() {
       {[...Array(4)].map((_, i) => (
         <div key={i} className="px-5 py-4 border-b border-gray-100 flex gap-4">
           <div className="h-4 bg-gray-100 rounded animate-pulse w-48" />
-          <div className="h-4 bg-gray-100 rounded animate-pulse w-20" />
           <div className="h-4 bg-gray-100 rounded animate-pulse w-24" />
         </div>
       ))}
