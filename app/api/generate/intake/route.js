@@ -7,7 +7,7 @@ import {
   Document, Header, Paragraph, TextRun, Table, TableRow, TableCell,
   ImageRun, Packer, WidthType, BorderStyle, ShadingType, TableLayoutType,
   HorizontalPositionRelativeFrom, VerticalPositionRelativeFrom,
-  TextWrappingType, PageOrientation,
+  TextWrappingType, PageOrientation, ExternalHyperlink,
 } from 'docx';
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -165,9 +165,10 @@ async function buildDocx({ companyName, website, linkedin, date, data }) {
             width: { size: 3165, type: WidthType.DXA },
             borders: cellBorders,
             shading: shade('F7F7F7'),
+            margins: cellPad,
             children: [
-              new Paragraph({ children: [txt('Company Size')], spacing: sp(0) }),
-              new Paragraph({ children: [txt('(number of employees)', { color: '666666' })], spacing: sp(0) }),
+              new Paragraph({ children: [txt('Company Size ')], spacing: sp(200) }),
+              new Paragraph({ children: [txt('(number of employees)')], spacing: sp(200) }),
             ],
           }),
           vCell(String(data.companySize || '—')),
@@ -183,8 +184,12 @@ async function buildDocx({ companyName, website, linkedin, date, data }) {
     columnWidths: [3135, 6030],
     layout: TableLayoutType.FIXED,
     rows: [
-      simpleRow('Elevator Pitch', data.elevatorPitch),
       new TableRow({
+        height: { value: 695, rule: 'atLeast' },
+        children: [lCell('Elevator Pitch'), vCell(String(data.elevatorPitch || '—'))],
+      }),
+      new TableRow({
+        height: { value: 695, rule: 'atLeast' },
         children: [
           lCell('Mission / Vision'),
           vCell([
@@ -211,13 +216,27 @@ async function buildDocx({ companyName, website, linkedin, date, data }) {
     ],
   });
 
+  const linkCell = (url) => {
+    const resolved = url && url !== '—' ? url : null;
+    const children = resolved
+      ? [new Paragraph({
+          children: [new ExternalHyperlink({
+            link: resolved,
+            children: [txt(resolved, { color: '1155CC', underline: {} })],
+          })],
+          spacing: sp(0),
+        })]
+      : [new Paragraph({ children: [txt('—')], spacing: sp(0) })];
+    return new TableCell({ borders: cellBorders, shading: shade('F7F7F7'), margins: cellPad, children });
+  };
+
   const table4 = new Table({
     width: { size: 9195, type: WidthType.DXA },
     columnWidths: [3165, 6030],
     layout: TableLayoutType.FIXED,
     rows: [
-      simpleRow('Website', website || data.website || '—'),
-      simpleRow('LinkedIn', linkedin || '—'),
+      new TableRow({ children: [lCell('Website'), linkCell(website || data.website)] }),
+      new TableRow({ children: [lCell('LinkedIn'), linkCell(linkedin)] }),
     ],
   });
 
@@ -242,6 +261,7 @@ async function buildDocx({ companyName, website, linkedin, date, data }) {
                 horizontalPosition: { relative: HorizontalPositionRelativeFrom.PAGE, offset: 5769864 },
                 verticalPosition: { relative: VerticalPositionRelativeFrom.PAGE, offset: 219456 },
                 wrap: { type: TextWrappingType.NONE },
+                behindDocument: false,
               },
             })],
           })],
