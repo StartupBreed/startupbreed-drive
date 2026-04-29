@@ -21,30 +21,30 @@ export default function FileItem({ file, onOpenFolder, onDelete, onDownload }) {
     setConfirmDelete(false);
   };
 
-  const handleOpen = () => {
-    if (isFolder) {
-      onOpenFolder(file);
-    } else if (GOOGLE_DOC_MIMES[file.mimeType]) {
-      window.open(`https://docs.google.com/open?id=${file.id}`, '_blank');
-    } else {
-      onDownload(file);
-    }
-  };
+  const driveUrl = `https://drive.google.com/open?id=${file.id}`;
 
   return (
     <div className="group bg-white border border-gray-200 rounded-xl p-4 hover:border-brand-300 hover:shadow-sm transition-all flex flex-col gap-2">
       {/* Icon + Name row */}
-      <button
-        onClick={handleOpen}
-        className="flex items-start gap-3 text-left w-full"
-      >
-        <div className="flex-shrink-0 mt-0.5">
-          <FileIcon mimeType={file.mimeType} />
-        </div>
-        <span className="text-sm font-medium text-gray-800 break-words leading-snug line-clamp-2">
-          {file.name}
-        </span>
-      </button>
+      {isFolder ? (
+        <button
+          onClick={() => onOpenFolder(file)}
+          className="flex items-start gap-3 text-left w-full"
+        >
+          <div className="flex-shrink-0 mt-0.5"><FileIcon mimeType={file.mimeType} /></div>
+          <span className="text-sm font-medium text-gray-800 break-words leading-snug line-clamp-2">{file.name}</span>
+        </button>
+      ) : (
+        <a
+          href={driveUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="flex items-start gap-3 text-left w-full"
+        >
+          <div className="flex-shrink-0 mt-0.5"><FileIcon mimeType={file.mimeType} /></div>
+          <span className="text-sm font-medium text-gray-800 break-words leading-snug line-clamp-2 group-hover:text-brand-600 transition-colors">{file.name}</span>
+        </a>
+      )}
 
       {/* Meta + Actions row */}
       <div className="flex items-center justify-between mt-auto pt-1">
