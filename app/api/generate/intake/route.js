@@ -124,27 +124,27 @@ async function buildDocx({ companyName, website, linkedin, date, data }) {
   const lCell = (content) => {
     const children = Array.isArray(content)
       ? content
-      : [new Paragraph({ children: [txt(String(content || ''))], spacing: { after: 80 } })];
+      : [new Paragraph({ children: [txt(String(content || ''))], spacing: { before: 0, after: 200 } })];
     return new TableCell({ width: { size: 3165, type: WidthType.DXA }, borders: cellBorders, shading: shade('F7F7F7'), children });
   };
 
   const vCell = (content, fill = 'F7F7F7') => {
     const children = Array.isArray(content)
       ? content
-      : [new Paragraph({ children: [txt(String(content || ''))], spacing: { after: 80 } })];
+      : [new Paragraph({ children: [txt(String(content || ''))], spacing: { before: 0, after: 200 } })];
     return new TableCell({ borders: cellBorders, ...(fill ? { shading: shade(fill) } : {}), children });
   };
 
   const simpleRow = (label, value, valueFill = 'F7F7F7') =>
     new TableRow({ children: [lCell(label), vCell(String(value || '—'), valueFill)] });
 
-  const toBullets = (val) => {
+  const toBullets = (val, lastAfter = 80) => {
     const items = Array.isArray(val) ? val : String(val || '').split('\n').filter(Boolean);
-    if (!items.length) return [new Paragraph({ children: [txt('—')], spacing: { after: 80 } })];
+    if (!items.length) return [new Paragraph({ children: [txt('—')], spacing: { before: 0, after: 200 } })];
     return items.map((item, i) => new Paragraph({
       children: [txt('●  ' + item)],
       indent: { left: 720, hanging: 360 },
-      spacing: { after: i === items.length - 1 ? 80 : 0 },
+      spacing: { before: 0, after: i === items.length - 1 ? lastAfter : 0 },
     }));
   };
 
@@ -163,8 +163,8 @@ async function buildDocx({ companyName, website, linkedin, date, data }) {
             borders: cellBorders,
             shading: shade('F7F7F7'),
             children: [
-              new Paragraph({ children: [txt('Company Size')], spacing: { after: 60 } }),
-              new Paragraph({ children: [txt('(number of employees)', { color: '666666' })], spacing: { after: 80 } }),
+              new Paragraph({ children: [txt('Company Size')], spacing: { before: 0, after: 200 } }),
+              new Paragraph({ children: [txt('(number of employees)', { color: '666666' })], spacing: { before: 0, after: 200 } }),
             ],
           }),
           vCell(String(data.companySize || '—')),
@@ -185,15 +185,15 @@ async function buildDocx({ companyName, website, linkedin, date, data }) {
         children: [
           lCell('Mission / Vision'),
           vCell([
-            new Paragraph({ children: [txt('Mission:  ', { bold: true }), txt(data.mission || '—')], spacing: { after: 80 } }),
-            new Paragraph({ children: [txt('Vision:  ', { bold: true }), txt(data.vision || '—')], spacing: { after: 80 } }),
+            new Paragraph({ children: [txt('Mission:  ', { bold: true }), txt(data.mission || '—')], spacing: { before: 0, after: 200 } }),
+            new Paragraph({ children: [txt('Vision:  ', { bold: true }), txt(data.vision || '—')], spacing: { before: 0, after: 200 } }),
           ]),
         ],
       }),
       simpleRow('Company Background', data.companyBackground),
       new TableRow({ children: [lCell('Services / Products'), vCell(toBullets(data.servicesProducts))] }),
       new TableRow({ children: [lCell('Unique Selling Points (USP)'), vCell(toBullets(data.usp))] }),
-      new TableRow({ children: [lCell('Target Market'), vCell(toBullets(data.targetMarket))] }),
+      new TableRow({ children: [lCell('Target Market'), vCell(toBullets(data.targetMarket, 200))] }),
       simpleRow('Main Competitors', data.mainCompetitors, null),
     ],
   });
