@@ -348,8 +348,9 @@ export async function POST(request) {
   try {
     const res = await drive.files.create({
       requestBody: {
-        name: `Client Intake_ ${companyName}.docx`,
+        name: `Client Intake_ ${companyName}`,
         parents: [folderId],
+        mimeType: 'application/vnd.google-apps.document',
       },
       media: {
         mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
