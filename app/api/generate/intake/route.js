@@ -335,12 +335,12 @@ export async function POST(request) {
 
   let data;
   try {
-    const message = await anthropic.messages.stream({
+    const message = await anthropic.messages.create({
       model: 'claude-sonnet-4-6',
-      max_tokens: 32000,
+      max_tokens: 16000,
       system: 'You are a senior recruitment consultant at StartupBreed, a headhunting firm. You produce detailed, substantive Client Intake documents. Return only valid JSON, no markdown, no explanation. Even though the output is JSON, every field must be detailed, specific, and written in professional consultant language — never short or generic.',
       messages: [{ role: 'user', content: buildPrompt({ ...body, websiteContent, linkedinContent }) }],
-    }).finalMessage();
+    });
     const text = message.content[0].text.trim();
     const jsonStart = text.indexOf('{');
     const jsonEnd = text.lastIndexOf('}');
