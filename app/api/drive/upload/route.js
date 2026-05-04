@@ -21,10 +21,14 @@ export async function POST(request) {
     const buffer = Buffer.from(await file.arrayBuffer());
     const stream = Readable.from(buffer);
 
+    const isDocx = file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      || file.name?.endsWith('.docx');
+
     const res = await drive.files.create({
       requestBody: {
-        name: file.name,
+        name: isDocx ? file.name.replace(/\.docx$/i, '') : file.name,
         parents: [parentId],
+        ...(isDocx && { mimeType: 'application/vnd.google-apps.document' }),
       },
       media: {
         mimeType: file.type || 'application/octet-stream',

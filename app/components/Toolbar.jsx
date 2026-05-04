@@ -1,7 +1,7 @@
 'use client';
 import { useRef, useState } from 'react';
 
-export default function Toolbar({ onCreateFolder, onNewPosition, onGenerateIntake, onUpload, onRefresh, depth = 0 }) {
+export default function Toolbar({ onCreateFolder, onNewPosition, onUpload, onRefresh, depth = 0 }) {
   const folderLabel = depth === 0 ? 'New client' : 'New folder';
   const [folderName, setFolderName] = useState('');
   const [showInput, setShowInput] = useState(false);
@@ -97,14 +97,8 @@ export default function Toolbar({ onCreateFolder, onNewPosition, onGenerateIntak
         onChange={handleFileChange}
       />
 
-      {/* Refresh + Generate Intake (depth 1 only) */}
+      {/* Refresh */}
       <div className="flex items-center gap-2 ml-auto">
-        {depth === 1 && onGenerateIntake && (
-          <button onClick={onGenerateIntake} className="btn-primary flex items-center gap-1.5">
-            <SparkleIcon />
-            Generate Intake
-          </button>
-        )}
         <button onClick={onRefresh} className="btn-secondary">
           <RefreshIcon />
           Refresh
@@ -165,14 +159,6 @@ export default function Toolbar({ onCreateFolder, onNewPosition, onGenerateIntak
         </div>
       )}
     </div>
-  );
-}
-
-function SparkleIcon() {
-  return (
-    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-    </svg>
   );
 }
 

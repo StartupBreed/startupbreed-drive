@@ -1,7 +1,28 @@
 {
   "permissions": {
     "allow": [
-      "Bash(python -c ' *)"
+      "Bash(python -c ' *)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(curl -s http://localhost:3000)",
+      "Bash(PORT=3002 npm run dev)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3002)",
+      "Bash(npm install *)",
+      "Bash(PORT=3002 node_modules/.bin/next dev --port 3002)",
+      "Bash(echo \"PID: $!\")",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "Bash(open -a \"Google Chrome\" \"http://localhost:3002\")",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(git config *)",
+      "Bash(ssh -T git@github.com)",
+      "Bash(git remote *)",
+      "Bash(security find-internet-password *)",
+      "Bash(git credential-osxkeychain *)",
+      "Bash(git fetch *)",
+      "Bash(grep -n \"function build\\\\|You are\\\\|return \\\\`\\\\|Pre-Hunt\\\\|Job Description\\\\|prehunt\\\\|jd\\\\b\" \"/Users/motourlife/Library/Mobile Documents/com~apple~CloudDocs/Startupbreed/Internal Website/startupbreed-drive/app/api/generate/position/route.js\")",
+      "Read(//private/tmp/**)",
+      "Bash(python3 -c ' *)"
     ]
   }
 }
