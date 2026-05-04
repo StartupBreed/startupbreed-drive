@@ -142,14 +142,25 @@ export default function DriveApp({ session }) {
     }
     if (depth === 1) {
       return (
-        <PositionTable
-          files={files}
-          loading={loading}
-          onOpenFolder={openFolder}
-          onDelete={handleDelete}
-          clientFolder={breadcrumb[1]}
-          onRefresh={() => fetchFiles(currentFolder.id)}
-        />
+        <>
+          <DocumentSlots
+            files={files}
+            slotKeys={['intake']}
+            onUploadToSlot={handleUploadToSlot}
+            onAssign={handleAssign}
+            onUnassign={handleUnassign}
+            onDelete={handleDelete}
+            onDownload={handleDownload}
+          />
+          <PositionTable
+            files={files}
+            loading={loading}
+            onOpenFolder={openFolder}
+            onDelete={handleDelete}
+            clientFolder={breadcrumb[1]}
+            onRefresh={() => fetchFiles(currentFolder.id)}
+          />
+        </>
       );
     }
     const positionFolder = breadcrumb[2];
@@ -163,6 +174,7 @@ export default function DriveApp({ session }) {
         )}
         <DocumentSlots
           files={files}
+          slotKeys={['prehunt', 'jd']}
           onUploadToSlot={handleUploadToSlot}
           onAssign={handleAssign}
           onUnassign={handleUnassign}

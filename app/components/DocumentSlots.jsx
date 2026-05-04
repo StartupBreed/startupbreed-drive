@@ -1,7 +1,7 @@
 'use client';
 import { useRef, useState } from 'react';
 
-const SLOTS = [
+const ALL_SLOTS = [
   { key: 'intake',  label: 'Client Intake',   color: 'blue'   },
   { key: 'prehunt', label: 'Pre-Hunt',         color: 'purple' },
   { key: 'jd',      label: 'Job Description',  color: 'green'  },
@@ -13,9 +13,15 @@ const COLOR = {
   green:  { icon: 'text-green-500 bg-green-50',  border: 'border-green-200', badge: 'bg-green-50 text-green-700' },
 };
 
-export default function DocumentSlots({ files, onUploadToSlot, onAssign, onUnassign, onDelete, onDownload }) {
+export default function DocumentSlots({ files, slotKeys, onUploadToSlot, onAssign, onUnassign, onDelete, onDownload }) {
+  const SLOTS = slotKeys
+    ? ALL_SLOTS.filter(s => slotKeys.includes(s.key))
+    : ALL_SLOTS;
+
+  const cols = SLOTS.length === 1 ? 'sm:grid-cols-1 max-w-xs' : SLOTS.length === 2 ? 'sm:grid-cols-2' : 'sm:grid-cols-3';
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
+    <div className={`grid grid-cols-1 ${cols} gap-3 mb-5`}>
       {SLOTS.map((slot) => {
         const file = files.find(f => f.properties?.documentType === slot.key);
         return file
