@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react';
 import PositionModal from './PositionModal';
 import InlineName from './InlineName';
-import GeneratePositionModal from './GeneratePositionModal';
 
 const FOLDER_MIME = 'application/vnd.google-apps.folder';
 const STATUSES = ['active', 'on-hold', 'closed'];
@@ -31,11 +30,10 @@ const statusStyle = {
   closed:    'text-indigo-700 bg-indigo-50 border-indigo-200',
 };
 
-export default function PositionTable({ files, loading, onOpenFolder, onDelete, clientFolder, onRefresh }) {
+export default function PositionTable({ files, loading, onOpenFolder, onDelete }) {
   const [localFiles, setLocalFiles] = useState(files);
   const [updating, setUpdating] = useState({});
   const [editingFile, setEditingFile] = useState(null);
-  const [generateFolder, setGenerateFolder] = useState(null);
 
   useEffect(() => { setLocalFiles(files); }, [files]);
 
@@ -73,16 +71,8 @@ export default function PositionTable({ files, loading, onOpenFolder, onDelete, 
           onSaved={(updated) => { handleSaved(updated); setEditingFile(null); }}
         />
       )}
-      {generateFolder && clientFolder && (
-        <GeneratePositionModal
-          folder={generateFolder}
-          clientFolder={clientFolder}
-          onClose={() => setGenerateFolder(null)}
-          onDone={() => { setGenerateFolder(null); onRefresh?.(); }}
-        />
-      )}
 
-      <div className="space-y-6">
+<div className="space-y-6">
         {/* Positions table — all fields visible */}
         {folders.length > 0 && (
           <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
@@ -166,16 +156,6 @@ export default function PositionTable({ files, loading, onOpenFolder, onDelete, 
                         {/* Actions */}
                         <td className="px-5 py-3.5">
                           <div className="flex items-center gap-1">
-                            {clientFolder && (
-                              <button
-                                onClick={() => setGenerateFolder(folder)}
-                                className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium text-brand-600 hover:text-brand-700 hover:bg-brand-50 border border-brand-200 transition-colors"
-                                title="Generate Pre-hunt & JD"
-                              >
-                                <SparkleIcon />
-                                Generate Docs
-                              </button>
-                            )}
                             <button
                               onClick={() => setEditingFile(folder)}
                               className="p-1.5 rounded-lg text-gray-400 hover:text-brand-600 hover:bg-brand-50 transition-colors"
@@ -264,14 +244,6 @@ function TableSkeleton() {
         </div>
       ))}
     </div>
-  );
-}
-
-function SparkleIcon() {
-  return (
-    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-    </svg>
   );
 }
 
