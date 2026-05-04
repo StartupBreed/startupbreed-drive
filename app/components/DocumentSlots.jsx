@@ -18,7 +18,7 @@ export default function DocumentSlots({ files, slotKeys, onUploadToSlot, onAssig
     ? ALL_SLOTS.filter(s => slotKeys.includes(s.key))
     : ALL_SLOTS;
 
-  const cols = SLOTS.length === 2 ? 'sm:grid-cols-2' : 'sm:grid-cols-3';
+  const cols = SLOTS.length === 1 ? '' : SLOTS.length === 2 ? 'sm:grid-cols-2' : 'sm:grid-cols-3';
 
   return (
     <div className={`grid grid-cols-1 ${cols} gap-3 mb-5`}>
