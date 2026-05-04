@@ -7,6 +7,24 @@ import GeneratePositionModal from './GeneratePositionModal';
 const FOLDER_MIME = 'application/vnd.google-apps.folder';
 const STATUSES = ['active', 'on-hold', 'closed'];
 
+function calcPackagePotential(salaryMax) {
+  const max = parseFloat(salaryMax);
+  return max ? max * 12 : null;
+}
+
+function calcPipelineValue(salaryMax, commission) {
+  const pkg = calcPackagePotential(salaryMax);
+  const comm = parseFloat(commission);
+  return pkg && comm ? pkg * (comm / 100) : null;
+}
+
+function formatThb(value) {
+  if (!value) return null;
+  if (value >= 1_000_000) return `฿${(value / 1_000_000).toFixed(2)}M`;
+  if (value >= 1_000) return `฿${(value / 1_000).toFixed(0)}K`;
+  return `฿${value.toLocaleString()}`;
+}
+
 const statusStyle = {
   active:    'text-green-700 bg-green-50 border-green-200',
   'on-hold': 'text-amber-700 bg-amber-50 border-amber-200',
@@ -80,6 +98,8 @@ export default function PositionTable({ files, loading, onOpenFolder, onDelete, 
                     <th className="text-left px-5 py-3">Location</th>
                     <th className="text-left px-5 py-3">Salary Range (THB)</th>
                     <th className="text-left px-5 py-3">Commission</th>
+                    <th className="text-left px-5 py-3">Package Potential</th>
+                    <th className="text-left px-5 py-3">Pipeline Value</th>
                     <th className="px-5 py-3" />
                   </tr>
                 </thead>
@@ -131,6 +151,16 @@ export default function PositionTable({ files, loading, onOpenFolder, onDelete, 
                         {/* Commission */}
                         <td className="px-5 py-3.5 text-gray-700">
                           {p.commission ? `${p.commission}%` : <Dash />}
+                        </td>
+
+                        {/* Package Potential */}
+                        <td className="px-5 py-3.5 font-medium text-brand-600">
+                          {formatThb(calcPackagePotential(p.salaryMax)) || <Dash />}
+                        </td>
+
+                        {/* Pipeline Value */}
+                        <td className="px-5 py-3.5 font-medium text-brand-600">
+                          {formatThb(calcPipelineValue(p.salaryMax, p.commission)) || <Dash />}
                         </td>
 
                         {/* Actions */}

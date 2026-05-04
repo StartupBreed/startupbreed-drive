@@ -3,6 +3,26 @@ import { useState } from 'react';
 import StatusBadge from './StatusBadge';
 import PositionModal from './PositionModal';
 
+function calcPackagePotential(salaryMax) {
+  const max = parseFloat(salaryMax);
+  if (!max) return null;
+  return max * 12;
+}
+
+function calcPipelineValue(salaryMax, commission) {
+  const pkg = calcPackagePotential(salaryMax);
+  const comm = parseFloat(commission);
+  if (!pkg || !comm) return null;
+  return pkg * (comm / 100);
+}
+
+function formatThb(value) {
+  if (!value) return null;
+  if (value >= 1_000_000) return `฿${(value / 1_000_000).toFixed(2)}M`;
+  if (value >= 1_000) return `฿${(value / 1_000).toFixed(0)}K`;
+  return `฿${value.toLocaleString()}`;
+}
+
 export default function PositionDetailCard({ folder, onUpdated }) {
   const [modalOpen, setModalOpen] = useState(false);
   const p = folder.properties || {};
@@ -39,6 +59,8 @@ export default function PositionDetailCard({ folder, onUpdated }) {
           <DetailField label="Location" value={p.location} />
           <DetailField label="Salary Range (THB)" value={p.salaryRange} />
           <DetailField label="Commission" value={p.commissionFormatted || (p.commission ? `${p.commission}%` : null)} />
+          <DetailField label="Package Potential" value={formatThb(calcPackagePotential(p.salaryMax))} highlight />
+          <DetailField label="Pipeline Value" value={formatThb(calcPipelineValue(p.salaryMax, p.commission))} highlight />
         </div>
       </div>
 
@@ -53,11 +75,13 @@ export default function PositionDetailCard({ folder, onUpdated }) {
   );
 }
 
-function DetailField({ label, value }) {
+function DetailField({ label, value, highlight }) {
   return (
     <div>
       <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-0.5">{label}</p>
-      <p className="text-sm text-gray-800 font-medium">{value || <span className="text-gray-300">—</span>}</p>
+      <p className={`text-sm font-medium ${highlight ? 'text-brand-600' : 'text-gray-800'}`}>
+        {value || <span className="text-gray-300">—</span>}
+      </p>
     </div>
   );
 }
