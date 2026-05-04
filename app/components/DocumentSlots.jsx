@@ -73,7 +73,7 @@ function FilledSlot({ slot, file, onAssign, onUnassign, onDelete, onDownload }) 
     ? `https://docs.google.com/document/d/${file.id}/edit`
     : `https://drive.google.com/open?id=${file.id}`;
 
-  const otherSlots = SLOTS.filter(s => s.key !== slot.key);
+  const otherSlots = ALL_SLOTS.filter(s => s.key !== slot.key);
 
   return (
     <div className={`border ${c.border} rounded-xl p-4 flex flex-col gap-2 min-h-[110px] bg-white relative`}>
