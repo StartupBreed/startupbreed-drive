@@ -10,6 +10,7 @@ import Dashboard from './Dashboard';
 import EmployeeTable from './EmployeeTable';
 import PositionDetailCard from './PositionDetailCard';
 import NewPositionModal from './NewPositionModal';
+import DocumentSlots from './DocumentSlots';
 
 const ROOT_ID = '1dOAe4OwsWtgm0x3l2mZzKsZcK1iR3RuA';
 
@@ -83,6 +84,30 @@ export default function DriveApp({ session }) {
     }
   };
 
+  const handleUploadToSlot = async (file, documentType) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('parentId', currentFolder.id);
+    formData.append('documentType', documentType);
+    const res = await fetch('/api/drive/upload', { method: 'POST', body: formData });
+    if (res.ok) fetchFiles(currentFolder.id);
+    else {
+      const d = await res.json();
+      alert('Upload error: ' + d.error);
+    }
+  };
+
+  const handleAssign = async (fileId, documentType) => {
+    await fetch(`/api/drive/assign/${fileId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ documentType }),
+    });
+    fetchFiles(currentFolder.id);
+  };
+
+  const handleUnassign = (fileId) => handleAssign(fileId, null);
+
   const handleDelete = async (fileId) => {
     const res = await fetch(`/api/drive/delete/${fileId}`, { method: 'DELETE' });
     if (res.ok) setFiles((prev) => prev.filter((f) => f.id !== fileId));
@@ -136,12 +161,22 @@ export default function DriveApp({ session }) {
             onUpdated={handlePositionUpdated}
           />
         )}
+        <DocumentSlots
+          files={files}
+          onUploadToSlot={handleUploadToSlot}
+          onAssign={handleAssign}
+          onUnassign={handleUnassign}
+          onDelete={handleDelete}
+          onDownload={handleDownload}
+        />
         <FileList
           files={files}
           loading={loading}
           onOpenFolder={openFolder}
           onDelete={handleDelete}
           onDownload={handleDownload}
+          onAssign={handleAssign}
+          filterSlotted
         />
       </>
     );

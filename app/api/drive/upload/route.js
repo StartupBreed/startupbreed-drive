@@ -10,6 +10,7 @@ export async function POST(request) {
   const formData = await request.formData();
   const file = formData.get('file');
   const parentId = formData.get('parentId') || 'root';
+  const documentType = formData.get('documentType') || null; // "intake" | "prehunt" | "jd" | null
 
   if (!file) return Response.json({ error: 'No file provided' }, { status: 400 });
 
@@ -29,6 +30,7 @@ export async function POST(request) {
         name: isDocx ? file.name.replace(/\.docx$/i, '') : file.name,
         parents: [parentId],
         ...(isDocx && { mimeType: 'application/vnd.google-apps.document' }),
+        ...(documentType && { properties: { documentType } }),
       },
       media: {
         mimeType: file.type || 'application/octet-stream',

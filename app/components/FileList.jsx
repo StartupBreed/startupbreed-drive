@@ -1,7 +1,11 @@
 'use client';
 import FileItem from './FileItem';
 
-export default function FileList({ files, loading, onOpenFolder, onDelete, onDownload }) {
+export default function FileList({ files, loading, onOpenFolder, onDelete, onDownload, onAssign, filterSlotted = false }) {
+  const displayFiles = filterSlotted
+    ? files.filter(f => !f.properties?.documentType)
+    : files;
+
   if (loading) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
@@ -12,7 +16,8 @@ export default function FileList({ files, loading, onOpenFolder, onDelete, onDow
     );
   }
 
-  if (!files.length) {
+  if (!displayFiles.length) {
+    if (filterSlotted) return null; // no "empty" state when slots are shown above
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <svg className="w-14 h-14 text-gray-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -27,13 +32,14 @@ export default function FileList({ files, loading, onOpenFolder, onDelete, onDow
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-      {files.map((file) => (
+      {displayFiles.map((file) => (
         <FileItem
           key={file.id}
           file={file}
           onOpenFolder={onOpenFolder}
           onDelete={onDelete}
           onDownload={onDownload}
+          onAssign={onAssign}
         />
       ))}
     </div>

@@ -9,9 +9,16 @@ const GOOGLE_DOC_MIMES = {
   'application/vnd.google-apps.form': 'Form',
 };
 
-export default function FileItem({ file, onOpenFolder, onDelete, onDownload }) {
+const SLOT_OPTIONS = [
+  { key: 'intake',  label: 'Client Intake'  },
+  { key: 'prehunt', label: 'Pre-Hunt'        },
+  { key: 'jd',      label: 'Job Description' },
+];
+
+export default function FileItem({ file, onOpenFolder, onDelete, onDownload, onAssign }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [showAssign, setShowAssign] = useState(false);
   const isFolder = file.mimeType === FOLDER_MIME;
 
   const handleDelete = async () => {
@@ -57,6 +64,28 @@ export default function FileItem({ file, onOpenFolder, onDelete, onDownload }) {
         </span>
 
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          {!isFolder && onAssign && (
+            <div className="relative">
+              <button
+                onClick={() => setShowAssign(v => !v)}
+                title="Assign to slot"
+                className="p-1.5 rounded-lg text-gray-400 hover:text-brand-600 hover:bg-brand-50 transition-colors"
+              >
+                <AssignIcon />
+              </button>
+              {showAssign && (
+                <div className="absolute right-0 bottom-8 z-20 w-40 bg-white border border-gray-200 rounded-xl shadow-lg py-1 text-sm" onMouseLeave={() => setShowAssign(false)}>
+                  <p className="px-3 py-1 text-xs font-semibold text-gray-400 uppercase tracking-wide">Assign as</p>
+                  {SLOT_OPTIONS.map(s => (
+                    <button key={s.key} onClick={() => { onAssign(file.id, s.key); setShowAssign(false); }}
+                      className="w-full text-left px-3 py-1.5 hover:bg-gray-50 text-gray-700">
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
           {!isFolder && (
             <button
               onClick={() => onDownload(file)}
@@ -136,4 +165,8 @@ function DownloadIcon() {
 
 function TrashIcon() {
   return <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>;
+}
+
+function AssignIcon() {
+  return <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>;
 }
