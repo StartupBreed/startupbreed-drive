@@ -5,6 +5,24 @@ const ROOT_ID = '1dOAe4OwsWtgm0x3l2mZzKsZcK1iR3RuA';
 const FOLDER_MIME = 'application/vnd.google-apps.folder';
 const STATUSES = ['active', 'on-hold', 'closed'];
 
+function calcPackagePotential(salaryMax) {
+  const max = parseFloat(salaryMax);
+  return max ? max * 12 : null;
+}
+
+function calcPipelineValue(salaryMax, commission) {
+  const pkg = calcPackagePotential(salaryMax);
+  const comm = parseFloat(commission);
+  return pkg && comm ? pkg * (comm / 100) : null;
+}
+
+function formatThb(value) {
+  if (!value) return null;
+  if (value >= 1_000_000) return `฿${(value / 1_000_000).toFixed(2)}M`;
+  if (value >= 1_000) return `฿${(value / 1_000).toFixed(0)}K`;
+  return `฿${value.toLocaleString()}`;
+}
+
 const statusStyle = {
   active:    'text-green-700 bg-green-50 border-green-200',
   'on-hold': 'text-amber-700 bg-amber-50 border-amber-200',
@@ -145,6 +163,8 @@ function PositionSection({ title, dot, badgeClass, rows, loading, emptyMsg, upda
                   <th className="text-left px-5 py-3">Location</th>
                   <th className="text-left px-5 py-3">Salary Range (THB)</th>
                   <th className="text-left px-5 py-3">Commission</th>
+                  <th className="text-left px-5 py-3">Package Potential</th>
+                  <th className="text-left px-5 py-3">Pipeline Value</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -200,6 +220,12 @@ function PositionSection({ title, dot, badgeClass, rows, loading, emptyMsg, upda
                       <td className="px-5 py-3.5 text-gray-700">{p.location || <Dash />}</td>
                       <td className="px-5 py-3.5 text-gray-700 font-medium">{p.salaryRange || <Dash />}</td>
                       <td className="px-5 py-3.5 text-gray-700">{p.commission ? `${p.commission}%` : <Dash />}</td>
+                      <td className="px-5 py-3.5 font-medium text-brand-600">
+                        {formatThb(calcPackagePotential(p.salaryMax)) || <Dash />}
+                      </td>
+                      <td className="px-5 py-3.5 font-medium text-brand-600">
+                        {formatThb(calcPipelineValue(p.salaryMax, p.commission)) || <Dash />}
+                      </td>
                     </tr>
                   );
                 })}
