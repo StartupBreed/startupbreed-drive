@@ -2,15 +2,17 @@
 import { useRef, useState } from 'react';
 
 const ALL_SLOTS = [
-  { key: 'intake',  label: 'Client Intake',   color: 'blue'   },
-  { key: 'prehunt', label: 'Pre-Hunt',         color: 'purple' },
-  { key: 'jd',      label: 'Job Description',  color: 'green'  },
+  { key: 'intake',  label: 'Client Intake',          color: 'blue'   },
+  { key: 'prehunt', label: 'Pre-Hunt',                color: 'purple' },
+  { key: 'jd',      label: 'Job Description',         color: 'green'  },
+  { key: 'icp',     label: 'Ideal Candidate Persona', color: 'orange' },
 ];
 
 const COLOR = {
-  blue:   { icon: 'text-blue-500 bg-blue-50',   border: 'border-blue-200', badge: 'bg-blue-50 text-blue-700' },
+  blue:   { icon: 'text-blue-500 bg-blue-50',     border: 'border-blue-200',   badge: 'bg-blue-50 text-blue-700'   },
   purple: { icon: 'text-purple-500 bg-purple-50', border: 'border-purple-200', badge: 'bg-purple-50 text-purple-700' },
-  green:  { icon: 'text-green-500 bg-green-50',  border: 'border-green-200', badge: 'bg-green-50 text-green-700' },
+  green:  { icon: 'text-green-500 bg-green-50',   border: 'border-green-200',  badge: 'bg-green-50 text-green-700'  },
+  orange: { icon: 'text-orange-500 bg-orange-50', border: 'border-orange-200', badge: 'bg-orange-50 text-orange-700' },
 };
 
 export default function DocumentSlots({ files, slotKeys, onUploadToSlot, onAssign, onUnassign, onDelete, onDownload }) {

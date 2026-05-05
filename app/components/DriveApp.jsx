@@ -11,6 +11,7 @@ import EmployeeTable from './EmployeeTable';
 import PositionDetailCard from './PositionDetailCard';
 import NewPositionModal from './NewPositionModal';
 import DocumentSlots from './DocumentSlots';
+import GenerateICPModal from './GenerateICPModal';
 
 const ROOT_ID = '1dOAe4OwsWtgm0x3l2mZzKsZcK1iR3RuA';
 
@@ -21,6 +22,7 @@ export default function DriveApp({ session }) {
   const [error, setError] = useState(null);
   const [breadcrumb, setBreadcrumb] = useState([{ id: ROOT_ID, name: 'Clients' }]);
   const [showNewPositionModal, setShowNewPositionModal] = useState(false);
+  const [showICPModal, setShowICPModal] = useState(false);
 
   const currentFolder = breadcrumb[breadcrumb.length - 1];
   // depth: 0 = root (client list), 1 = inside client (positions), 2+ = inside position
@@ -169,12 +171,14 @@ export default function DriveApp({ session }) {
         {positionFolder && (
           <PositionDetailCard
             folder={positionFolder}
+            clientFolder={breadcrumb[1]}
             onUpdated={handlePositionUpdated}
+            onGenerateICP={() => setShowICPModal(true)}
           />
         )}
         <DocumentSlots
           files={files}
-          slotKeys={['prehunt', 'jd']}
+          slotKeys={['prehunt', 'jd', 'icp']}
           onUploadToSlot={handleUploadToSlot}
           onAssign={handleAssign}
           onUnassign={handleUnassign}
@@ -274,6 +278,16 @@ export default function DriveApp({ session }) {
             setShowNewPositionModal(false);
             fetchFiles(currentFolder.id);
           }}
+        />
+      )}
+
+      {showICPModal && depth === 2 && (
+        <GenerateICPModal
+          folder={currentFolder}
+          clientFolder={breadcrumb[1]}
+          files={files}
+          onClose={() => setShowICPModal(false)}
+          onDone={() => { setShowICPModal(false); fetchFiles(currentFolder.id); }}
         />
       )}
 

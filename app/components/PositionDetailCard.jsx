@@ -23,7 +23,7 @@ function formatThb(value) {
   return `฿${value.toLocaleString()}`;
 }
 
-export default function PositionDetailCard({ folder, onUpdated }) {
+export default function PositionDetailCard({ folder, clientFolder, onUpdated, onGenerateICP }) {
   const [modalOpen, setModalOpen] = useState(false);
   const p = folder.properties || {};
 
@@ -42,6 +42,15 @@ export default function PositionDetailCard({ folder, onUpdated }) {
           </div>
           <div className="flex items-center gap-3 flex-shrink-0">
             <StatusBadge status={p.status || 'active'} />
+            {onGenerateICP && (
+              <button
+                onClick={onGenerateICP}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-brand-600 hover:text-brand-700 hover:bg-brand-50 border border-brand-200 transition-colors"
+              >
+                <SparkleIcon />
+                Generate ICP
+              </button>
+            )}
             <button
               onClick={() => setModalOpen(true)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 border border-gray-200 transition-colors"
@@ -83,6 +92,14 @@ function DetailField({ label, value, highlight }) {
         {value || <span className="text-gray-300">—</span>}
       </p>
     </div>
+  );
+}
+
+function SparkleIcon() {
+  return (
+    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+    </svg>
   );
 }
 
