@@ -9,7 +9,7 @@ import {
 import { authOptions } from '../../auth/[...nextauth]/route';
 
 // ── Styling constants (mirrors resume-template) ──────────────────────────────
-const FONT  = 'Times New Roman';
+const FONT  = 'Poppins';
 const SZ_LG = 32;   // 16pt — position title first letter
 const SZ_MD = 28;   // 14pt — position title rest
 const SZ_SM = 18;   // 9pt  — body text
