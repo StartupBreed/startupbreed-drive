@@ -255,12 +255,11 @@ All values must be concise to fit a 1-page document.`;
     const buffer = await Packer.toBuffer(doc);
     const stream = Readable.from(buffer);
 
-    // Upload as .docx → auto-convert to Google Doc
+    // Upload as .docx (no conversion — preserves landscape orientation & columns)
     const created = await drive.files.create({
       requestBody: {
         name: `ICP - ${positionName}`,
         parents: [positionFolderId],
-        mimeType: 'application/vnd.google-apps.document',
         properties: { documentType: 'icp' },
       },
       media: {
