@@ -4,7 +4,7 @@ import { Readable } from 'stream';
 import Anthropic from '@anthropic-ai/sdk';
 import {
   Document, Packer, Paragraph, TextRun, AlignmentType,
-  LevelFormat, BorderStyle, Header, PageOrientation,
+  LevelFormat, BorderStyle, Header,
 } from 'docx';
 import { authOptions } from '../../auth/[...nextauth]/route';
 
@@ -72,7 +72,7 @@ function buildICPDocx(d, positionName, companyName, seniority, location) {
     sections: [{
       properties: {
         page: {
-          size: { width: 15840, height: 12240, orientation: PageOrientation.LANDSCAPE },
+          size: { width: 15840, height: 12240, orientation: 'landscape' },
           margin: { top: 720, right: 720, bottom: 720, left: 720, header: 227, footer: 397 },
         },
         column: { count: 2, space: 720, equalWidth: true },

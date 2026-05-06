@@ -71,7 +71,9 @@ function FilledSlot({ slot, file, onAssign, onUnassign, onDelete, onDownload }) 
   const c = COLOR[slot.color];
 
   const isGoogleDoc = file.mimeType === 'application/vnd.google-apps.document';
-  const openUrl = isGoogleDoc
+  const isDocx = file.mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    || file.name?.endsWith('.docx');
+  const openUrl = (isGoogleDoc || isDocx)
     ? `https://docs.google.com/document/d/${file.id}/edit`
     : `https://drive.google.com/open?id=${file.id}`;
 
