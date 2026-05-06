@@ -4,7 +4,7 @@ import { Readable } from 'stream';
 import Anthropic from '@anthropic-ai/sdk';
 import {
   Document, Packer, Paragraph, TextRun, AlignmentType,
-  LevelFormat, BorderStyle, Header,
+  LevelFormat, BorderStyle, Header, PageOrientation, BreakType,
 } from 'docx';
 import { authOptions } from '../../auth/[...nextauth]/route';
 
@@ -72,9 +72,10 @@ function buildICPDocx(d, positionName, companyName, seniority, location) {
     sections: [{
       properties: {
         page: {
-          size: { width: 12240, height: 15840 },
+          size: { width: 15840, height: 12240, orientation: PageOrientation.LANDSCAPE },
           margin: { top: 720, right: 720, bottom: 720, left: 720, header: 227, footer: 397 },
         },
+        column: { count: 2, space: 720, equalWidth: true },
         titlePage: true,
       },
       headers: {
@@ -110,8 +111,13 @@ function buildICPDocx(d, positionName, companyName, seniority, location) {
         sectionHeader('SOFT SKILLS & PERSONALITY'),
         ...d.softSkills.map(bullet),
 
+        // ── COLUMN BREAK → right column starts here ──────────────────────────
+        new Paragraph({
+          children: [new TextRun({ break: BreakType.COLUMN })],
+        }),
+
         // ── MOTIVATIONS & CAREER GOALS ───────────────────────────────────────
-        sectionHeader('MOTIVATIONS & CAREER GOALS'),
+        sectionHeader('MOTIVATIONS & CAREER GOALS', 0),
         ...d.motivations.map(bullet),
 
         // ── CULTURAL FIT & RED FLAGS ─────────────────────────────────────────
