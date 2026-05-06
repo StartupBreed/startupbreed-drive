@@ -4,7 +4,7 @@ import { Readable } from 'stream';
 import Anthropic from '@anthropic-ai/sdk';
 import {
   Document, Packer, Paragraph, TextRun, AlignmentType,
-  LevelFormat, BorderStyle, Header, PageOrientation, BreakType,
+  LevelFormat, BorderStyle, Header, PageOrientation,
 } from 'docx';
 import { authOptions } from '../../auth/[...nextauth]/route';
 
@@ -113,7 +113,7 @@ function buildICPDocx(d, positionName, companyName, seniority, location) {
 
         // ── COLUMN BREAK → right column starts here ──────────────────────────
         new Paragraph({
-          children: [new TextRun({ break: BreakType.COLUMN })],
+          children: [new TextRun({ break: 'column' })],
         }),
 
         // ── MOTIVATIONS & CAREER GOALS ───────────────────────────────────────
