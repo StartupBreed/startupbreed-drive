@@ -4,16 +4,15 @@ import { Readable } from 'stream';
 import Anthropic from '@anthropic-ai/sdk';
 import {
   Document, Packer, Paragraph, TextRun, AlignmentType,
-  TabStopType, LevelFormat, BorderStyle, Header,
+  LevelFormat, BorderStyle, Header,
 } from 'docx';
 import { authOptions } from '../../auth/[...nextauth]/route';
 
 // ── Styling constants (mirrors resume-template) ──────────────────────────────
-const FONT    = 'Times New Roman';
-const SZ_LG   = 32;   // 16pt — position title first letter
-const SZ_MD   = 28;   // 14pt — position title rest
-const SZ_SM   = 18;   // 9pt  — body text
-const LTAB    = 1800; // left tab for label+value rows
+const FONT  = 'Times New Roman';
+const SZ_LG = 32;   // 16pt — position title first letter
+const SZ_MD = 28;   // 14pt — position title rest
+const SZ_SM = 18;   // 9pt  — body text
 
 function titleRuns(text) {
   const runs = [];
@@ -43,13 +42,12 @@ function bullet(text) {
   });
 }
 
-function labelRow(label, value) {
+function labelBullet(label, value) {
   return new Paragraph({
-    tabStops: [{ type: TabStopType.LEFT, position: LTAB }],
+    numbering: { reference: 'bullets', level: 0 },
     spacing: { line: 228, lineRule: 'auto' },
     children: [
-      new TextRun({ text: label, bold: true, size: SZ_SM, font: FONT }),
-      new TextRun({ text: '\t', size: SZ_SM, font: FONT }),
+      new TextRun({ text: `${label}: `, bold: true, size: SZ_SM, font: FONT }),
       new TextRun({ text: value, size: SZ_SM, font: FONT }),
     ],
   });
@@ -99,14 +97,14 @@ function buildICPDocx(d, positionName, companyName, seniority, location) {
 
         // ── PROFESSIONAL BACKGROUND ──────────────────────────────────────────
         sectionHeader('PROFESSIONAL BACKGROUND', 100),
-        labelRow('Experience', d.background.experience),
-        labelRow('Industries', d.background.industries.join(', ')),
-        labelRow('Target Roles', d.background.previousRoles.join(', ')),
+        labelBullet('Experience', d.background.experience),
+        labelBullet('Industries', d.background.industries.join(', ')),
+        labelBullet('Target Roles', d.background.previousRoles.join(', ')),
 
         // ── TECHNICAL SKILLS ─────────────────────────────────────────────────
         sectionHeader('TECHNICAL SKILLS'),
-        labelRow('Must-have', d.technicalSkills.mustHave.join(', ')),
-        labelRow('Nice-to-have', d.technicalSkills.niceToHave.join(', ')),
+        labelBullet('Must-have', d.technicalSkills.mustHave.join(', ')),
+        labelBullet('Nice-to-have', d.technicalSkills.niceToHave.join(', ')),
 
         // ── SOFT SKILLS & PERSONALITY ────────────────────────────────────────
         sectionHeader('SOFT SKILLS & PERSONALITY'),
@@ -118,14 +116,14 @@ function buildICPDocx(d, positionName, companyName, seniority, location) {
 
         // ── CULTURAL FIT & RED FLAGS ─────────────────────────────────────────
         sectionHeader('CULTURAL FIT & RED FLAGS'),
-        labelRow('Fit indicators', d.culturalFit.join(', ')),
-        labelRow('Disqualifiers', d.redFlags.join(', ')),
+        labelBullet('Fit indicators', d.culturalFit.join(', ')),
+        labelBullet('Disqualifiers', d.redFlags.join(', ')),
 
         // ── SOURCING STRATEGY ────────────────────────────────────────────────
         sectionHeader('SOURCING STRATEGY'),
-        labelRow('Boolean', d.sourcing.boolean),
-        labelRow('Target companies', d.sourcing.targetCompanies.join(', ')),
-        labelRow('Platforms', d.sourcing.platforms.join(', ')),
+        labelBullet('Boolean', d.sourcing.boolean),
+        labelBullet('Target companies', d.sourcing.targetCompanies.join(', ')),
+        labelBullet('Platforms', d.sourcing.platforms.join(', ')),
       ],
     }],
   });
