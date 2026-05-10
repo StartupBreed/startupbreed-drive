@@ -1,6 +1,6 @@
 import { getServerSession } from 'next-auth';
 import { google } from 'googleapis';
-import { authOptions } from '../../../auth/[...nextauth]/route';
+import { authOptions } from '../../auth/[...nextauth]/route';
 
 const SPREADSHEET_ID = process.env.SHEETS_KPI_ID;
 const RANGE = 'KPIs Setting!A2:B';
