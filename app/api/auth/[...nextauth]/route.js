@@ -9,7 +9,7 @@ export const authOptions = {
       authorization: {
         params: {
           // Request Drive access + ability to refresh token offline
-          scope: 'openid email profile https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/drive.appdata',
+          scope: 'openid email profile https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/spreadsheets',
           access_type: 'offline',
           prompt: 'consent',
         },

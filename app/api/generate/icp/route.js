@@ -4,139 +4,215 @@ import { Readable } from 'stream';
 import Anthropic from '@anthropic-ai/sdk';
 import {
   Document, Packer, Paragraph, TextRun, AlignmentType,
-  LevelFormat, BorderStyle, Header,
+  BorderStyle, Table, TableRow, TableCell, WidthType, VerticalAlign,
 } from 'docx';
 import { authOptions } from '../../auth/[...nextauth]/route';
 
-// ── Styling constants (mirrors resume-template) ──────────────────────────────
-const FONT  = 'Poppins';
-const SZ_LG = 32;   // 16pt — position title first letter
-const SZ_MD = 28;   // 14pt — position title rest
-const SZ_SM = 18;   // 9pt  — body text
+// ── Constants ─────────────────────────────────────────────────────────────────
+const FONT     = 'Poppins';
+const BRAND    = '424495';
+const GRAY     = '606060';
+const SZ_TITLE = 30;   // 15pt
+const SZ_BIO   = 16;   // 8pt
+const SZ_HEAD  = 18;   // 9pt
+const SZ_BODY  = 18;   // 9pt
 
-function titleRuns(text) {
-  const runs = [];
-  text.toUpperCase().split(' ').forEach((word, i) => {
-    if (i > 0) runs.push(new TextRun({ text: ' ', size: SZ_MD, font: FONT, bold: true }));
-    runs.push(new TextRun({ text: word[0], size: SZ_LG, font: FONT, bold: true }));
-    if (word.length > 1)
-      runs.push(new TextRun({ text: word.slice(1), size: SZ_MD, font: FONT, bold: true }));
-  });
-  return runs;
+// Landscape A4 in DXA (1 inch = 1440 DXA, 1 cm ≈ 567 DXA)
+const PAGE_W   = 16838;   // 29.7 cm
+const PAGE_H   = 11906;   // 21.0 cm
+const MARGIN   = 720;     // ~1.27 cm
+const USABLE_W = PAGE_W - MARGIN * 2;
+const GAP_W    = 360;
+const COL_W    = Math.floor((USABLE_W - GAP_W) / 2);
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function r(text, { bold = false, size = SZ_BODY, color = '000000' } = {}) {
+  return new TextRun({ text, bold, size, color, font: FONT });
 }
 
-function sectionHeader(text, beforePt = 60) {
+function sectionHeader(text, spaceBefore = 120) {
   return new Paragraph({
     alignment: AlignmentType.CENTER,
-    spacing: { before: beforePt, after: 30 },
+    spacing: { before: spaceBefore, after: 30, line: 220, lineRule: 'auto' },
     border: { bottom: { style: BorderStyle.SINGLE, size: 4, color: '000000', space: 1 } },
-    children: [new TextRun({ text, bold: true, font: FONT })],
-  });
-}
-
-function bullet(text) {
-  return new Paragraph({
-    numbering: { reference: 'bullets', level: 0 },
-    spacing: { line: 228, lineRule: 'auto' },
-    children: [new TextRun({ text, size: SZ_SM, font: FONT })],
+    children: [r(text, { bold: true, size: SZ_HEAD })],
   });
 }
 
 function labelBullet(label, value) {
+  if (!value) return null;
   return new Paragraph({
-    numbering: { reference: 'bullets', level: 0 },
-    spacing: { line: 228, lineRule: 'auto' },
+    spacing: { before: 0, after: 20, line: 220, lineRule: 'auto' },
+    indent: { left: 360, hanging: 180 },
     children: [
-      new TextRun({ text: `${label}: `, bold: true, size: SZ_SM, font: FONT }),
-      new TextRun({ text: value, size: SZ_SM, font: FONT }),
+      r('- '),
+      r(`${label}: `, { bold: true }),
+      r(value),
     ],
   });
 }
 
-function buildICPDocx(d, positionName, companyName, seniority, location) {
-  const subtitle = [companyName, seniority, location].filter(Boolean).join('  ·  ');
+function bullet(text) {
+  if (!text) return null;
+  return new Paragraph({
+    spacing: { before: 0, after: 20, line: 220, lineRule: 'auto' },
+    indent: { left: 360, hanging: 180 },
+    children: [r(`- ${text}`)],
+  });
+}
+
+const NO_BORDER    = { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' };
+const CELL_BORDERS = { top: NO_BORDER, bottom: NO_BORDER, left: NO_BORDER, right: NO_BORDER };
+const TABLE_BORDERS = {
+  top: NO_BORDER, bottom: NO_BORDER, left: NO_BORDER, right: NO_BORDER,
+  insideHorizontal: NO_BORDER, insideVertical: NO_BORDER,
+};
+
+function cell(paragraphs, width) {
+  return new TableCell({
+    width: { size: width, type: WidthType.DXA },
+    verticalAlign: VerticalAlign.TOP,
+    borders: CELL_BORDERS,
+    children: paragraphs.filter(Boolean),
+  });
+}
+
+// ── Document builder ──────────────────────────────────────────────────────────
+function buildICPDocx(d, positionName, companyName) {
+  // Subtitle: Company · Seniority
+  const subtitleParts = [companyName, d.seniority].filter(Boolean);
+
+  // Biography strip
+  const bioFields = [
+    ['Age Range',   d.age_range],
+    ['Salary',      d.salary_range],
+    ['Location',    d.location],
+    ['Nationality', d.nationality],
+    ['Education',   d.education],
+  ].filter(([, v]) => v);
+
+  const bioRuns = [];
+  bioFields.forEach(([label, val], i) => {
+    if (i > 0) bioRuns.push(r('  ·  ', { size: SZ_BIO, color: GRAY }));
+    bioRuns.push(r(`${label}: `, { bold: true, size: SZ_BIO, color: GRAY }));
+    bioRuns.push(r(val, { size: SZ_BIO, color: GRAY }));
+  });
+
+  // Left column
+  const leftChildren = [
+    sectionHeader('PROFESSIONAL SUMMARY', 0),
+    ...(d.professional_summary || []).map(bullet),
+    sectionHeader('TARGET BACKGROUND'),
+    labelBullet('Experience', d.experience),
+    d.industries?.length     ? labelBullet('Industries',    d.industries.join(', '))     : null,
+    d.previous_roles?.length ? labelBullet('Target Roles',  d.previous_roles.join(', ')) : null,
+    sectionHeader('SKILLS'),
+    d.must_have?.length      ? labelBullet('Must-have',    d.must_have.join(', '))    : null,
+    d.nice_to_have?.length   ? labelBullet('Nice-to-have', d.nice_to_have.join(', ')) : null,
+  ];
+
+  // Right column
+  const rightChildren = [
+    sectionHeader('CULTURE & PERSONALITY', 0),
+    ...(d.culture_personality || []).map(bullet),
+    sectionHeader('MOTIVATIONS & GOALS'),
+    ...(d.motivations || []).map(bullet),
+  ];
+
+  const bodyTable = new Table({
+    width: { size: USABLE_W, type: WidthType.DXA },
+    borders: TABLE_BORDERS,
+    rows: [new TableRow({
+      children: [
+        cell(leftChildren,                                  COL_W),
+        cell([new Paragraph({ children: [r('')] })],        GAP_W),
+        cell(rightChildren,                                 COL_W),
+      ],
+    })],
+  });
 
   return new Document({
-    numbering: {
-      config: [{
-        reference: 'bullets',
-        levels: [{
-          level: 0,
-          format: LevelFormat.BULLET,
-          text: '-',
-          alignment: AlignmentType.LEFT,
-          style: { paragraph: { indent: { left: 360, hanging: 180 } } },
-        }],
-      }],
-    },
     sections: [{
       properties: {
         page: {
-          size: { width: 15840, height: 12240, orientation: 'landscape' },
-          margin: { top: 720, right: 720, bottom: 720, left: 720, header: 227, footer: 397 },
+          size: { width: PAGE_W, height: PAGE_H, orientation: 'landscape' },
+          margin: { top: MARGIN, right: MARGIN, bottom: MARGIN, left: MARGIN },
         },
-        column: { count: 2, space: 720, equalWidth: true },
-        titlePage: true,
-      },
-      headers: {
-        first: new Header({
-          children: [
-            new Paragraph({
-              alignment: AlignmentType.CENTER,
-              spacing: { after: 20, line: 276, lineRule: 'auto' },
-              children: titleRuns(positionName),
-            }),
-            new Paragraph({
-              alignment: AlignmentType.CENTER,
-              spacing: { after: 60 },
-              children: [new TextRun({ text: subtitle, size: SZ_SM, font: FONT })],
-            }),
-          ],
-        }),
       },
       children: [
-
-        // ── PROFESSIONAL BACKGROUND ──────────────────────────────────────────
-        sectionHeader('PROFESSIONAL BACKGROUND', 100),
-        labelBullet('Experience', d.background.experience),
-        labelBullet('Industries', d.background.industries.join(', ')),
-        labelBullet('Target Roles', d.background.previousRoles.join(', ')),
-
-        // ── TECHNICAL SKILLS ─────────────────────────────────────────────────
-        sectionHeader('TECHNICAL SKILLS'),
-        labelBullet('Must-have', d.technicalSkills.mustHave.join(', ')),
-        labelBullet('Nice-to-have', d.technicalSkills.niceToHave.join(', ')),
-
-        // ── SOFT SKILLS & PERSONALITY ────────────────────────────────────────
-        sectionHeader('SOFT SKILLS & PERSONALITY'),
-        ...d.softSkills.map(bullet),
-
-        // ── COLUMN BREAK → right column starts here ──────────────────────────
+        // Title
         new Paragraph({
-          children: [new TextRun({ break: 'column' })],
+          alignment: AlignmentType.CENTER,
+          spacing: { before: 0, after: 20, line: 240, lineRule: 'auto' },
+          children: [r(positionName.toUpperCase(), { bold: true, size: SZ_TITLE, color: BRAND })],
         }),
-
-        // ── MOTIVATIONS & CAREER GOALS ───────────────────────────────────────
-        sectionHeader('MOTIVATIONS & CAREER GOALS', 0),
-        ...d.motivations.map(bullet),
-
-        // ── CULTURAL FIT & RED FLAGS ─────────────────────────────────────────
-        sectionHeader('CULTURAL FIT & RED FLAGS'),
-        labelBullet('Fit indicators', d.culturalFit.join(', ')),
-        labelBullet('Disqualifiers', d.redFlags.join(', ')),
-
-        // ── SOURCING STRATEGY ────────────────────────────────────────────────
-        sectionHeader('SOURCING STRATEGY'),
-        labelBullet('Boolean', d.sourcing.boolean),
-        labelBullet('Target companies', d.sourcing.targetCompanies.join(', ')),
-        labelBullet('Platforms', d.sourcing.platforms.join(', ')),
+        // Subtitle
+        ...(subtitleParts.length ? [new Paragraph({
+          alignment: AlignmentType.CENTER,
+          spacing: { before: 0, after: 0, line: 240, lineRule: 'auto' },
+          children: [r(subtitleParts.join('  ·  '), { size: SZ_BODY, color: GRAY })],
+        })] : []),
+        // Biography strip
+        ...(bioRuns.length ? [new Paragraph({
+          alignment: AlignmentType.CENTER,
+          spacing: { before: 40, after: 80, line: 220, lineRule: 'auto' },
+          children: bioRuns,
+        })] : []),
+        // 2-column body
+        bodyTable,
       ],
     }],
   });
 }
 
-// ── API Route ────────────────────────────────────────────────────────────────
+// ── Claude prompt ─────────────────────────────────────────────────────────────
+function buildPrompt(positionName, companyName, intakeText, prehuntText, jdText, additionalNote) {
+  return `You are a senior recruitment consultant at StartupBreed, a headhunting firm.
+Read the finalized recruitment documents below and return a JSON object describing the Ideal Candidate Persona (ICP) for this role.
+The ICP is a client-facing document — keep all content professional, concise, and actionable.
 
+POSITION: ${positionName}
+COMPANY: ${companyName}
+
+--- CLIENT INTAKE ---
+${intakeText || '(not available)'}
+
+--- PRE-HUNT DOCUMENT ---
+${prehuntText || '(not available)'}
+
+--- JOB DESCRIPTION ---
+${jdText || '(not available)'}
+${additionalNote ? `\nADDITIONAL NOTES:\n${additionalNote}` : ''}
+
+Return ONLY a valid JSON object (no markdown, no explanation) matching this schema exactly:
+{
+  "seniority":            "e.g. Senior",
+  "age_range":            "e.g. 27-35",
+  "salary_range":         "e.g. 80,000-120,000 THB/month",
+  "location":             "e.g. Bangkok, Thailand",
+  "nationality":          "e.g. Thai or any",
+  "education":            "e.g. Bachelor's degree or above",
+  "professional_summary": ["sentence 1", "sentence 2", "sentence 3"],
+  "experience":           "e.g. 5+ years in B2B SaaS product management",
+  "industries":           ["Industry A", "Industry B", "Industry C"],
+  "previous_roles":       ["Role A", "Role B", "Role C"],
+  "must_have":            ["Skill A", "Skill B", "Skill C", "Skill D", "Skill E"],
+  "nice_to_have":         ["Skill E", "Skill F"],
+  "culture_personality":  ["Trait A", "Trait B", "Trait C", "Trait D"],
+  "motivations":          ["Motivation A", "Motivation B", "Motivation C"]
+}
+
+Rules (all values must be concise — this fits on 1 page):
+- professional_summary: max 3 items, full sentences describing who this person is overall
+- industries: max 3 items
+- previous_roles: max 3 items, short role titles only
+- must_have: max 5 items, short skill phrases
+- nice_to_have: max 3 items, short skill phrases
+- culture_personality: max 4 items, short descriptive phrases about how they work and who they are
+- motivations: max 3 items, concise sentences about what drives them and what they seek`;
+}
+
+// ── API Route ─────────────────────────────────────────────────────────────────
 export async function POST(request) {
   const session = await getServerSession(authOptions);
   if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 });
@@ -163,7 +239,7 @@ export async function POST(request) {
       fields: 'files(id, name, mimeType, properties)',
       pageSize: 50,
     });
-    return (res.data.files || []).find((f) => f.properties?.documentType === docType) || null;
+    return (res.data.files || []).find(f => f.properties?.documentType === docType) || null;
   }
 
   try {
@@ -174,73 +250,20 @@ export async function POST(request) {
       findDocByType(positionFolderId, 'jd'),
     ]);
     const [intakeText, prehuntText, jdText] = await Promise.all([
-      intakeFile ? exportDocText(intakeFile.id) : null,
+      intakeFile  ? exportDocText(intakeFile.id)  : null,
       prehuntFile ? exportDocText(prehuntFile.id) : null,
-      jdFile ? exportDocText(jdFile.id) : null,
+      jdFile      ? exportDocText(jdFile.id)      : null,
     ]);
 
-    // Ask Claude to produce structured JSON
-    const prompt = `You are a senior recruitment consultant at StartupBreed, a headhunting firm.
-Read the finalized recruitment documents below and return a JSON object describing the Ideal Candidate Persona (ICP) for this role.
-
-POSITION: ${positionName}
-COMPANY: ${companyName}
-
---- CLIENT INTAKE ---
-${intakeText || '(not available)'}
-
---- PRE-HUNT DOCUMENT ---
-${prehuntText || '(not available)'}
-
---- JOB DESCRIPTION ---
-${jdText || '(not available)'}
-${additionalNote ? `\nADDITIONAL NOTES:\n${additionalNote}` : ''}
-
-Return ONLY a valid JSON object (no markdown, no explanation) matching this schema exactly:
-{
-  "seniority": "e.g. Senior / Mid / Manager",
-  "location": "e.g. Bangkok, Thailand",
-  "background": {
-    "experience": "e.g. 5+ years in B2B SaaS sales",
-    "industries": ["Industry A", "Industry B"],
-    "previousRoles": ["Role A", "Role B", "Role C"]
-  },
-  "technicalSkills": {
-    "mustHave": ["Skill A", "Skill B", "Skill C", "Skill D"],
-    "niceToHave": ["Skill E", "Skill F"]
-  },
-  "softSkills": ["Trait A", "Trait B", "Trait C", "Trait D"],
-  "motivations": ["Motivation A", "Motivation B", "Motivation C"],
-  "culturalFit": ["Indicator A", "Indicator B", "Indicator C"],
-  "redFlags": ["Flag A", "Flag B", "Flag C"],
-  "sourcing": {
-    "boolean": "LinkedIn boolean search string",
-    "targetCompanies": ["Company A", "Company B", "Company C"],
-    "platforms": ["LinkedIn", "Platform B"]
-  }
-}
-
-Rules:
-- industries: max 3 items
-- previousRoles: max 3 items
-- mustHave: max 5 items, short phrases only
-- niceToHave: max 3 items, short phrases only
-- softSkills: max 4 items, short phrases
-- motivations: max 3 items, concise sentences
-- culturalFit: max 3 items, short phrases
-- redFlags: max 3 items, short phrases
-- targetCompanies: max 4 items
-- platforms: max 3 items
-All values must be concise to fit a 1-page document.`;
-
+    // Ask Claude for structured ICP JSON
     const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-4-6',
       max_tokens: 1024,
-      messages: [{ role: 'user', content: prompt }],
+      messages: [{ role: 'user', content: buildPrompt(positionName, companyName, intakeText, prehuntText, jdText, additionalNote) }],
     });
 
-    // Parse JSON from Claude response
+    // Parse JSON
     let icpData;
     try {
       const raw = message.content[0].text.trim();
@@ -250,12 +273,11 @@ All values must be concise to fit a 1-page document.`;
       return Response.json({ error: 'Claude returned invalid JSON. Please try again.' }, { status: 500 });
     }
 
-    // Build formatted .docx
-    const doc = buildICPDocx(icpData, positionName, companyName, icpData.seniority, icpData.location);
+    // Build .docx
+    const doc = buildICPDocx(icpData, positionName, companyName);
     const buffer = await Packer.toBuffer(doc);
-    const stream = Readable.from(buffer);
 
-    // Upload as .docx (no conversion — preserves landscape orientation & columns)
+    // Upload to Drive as .docx (preserves landscape orientation)
     const created = await drive.files.create({
       requestBody: {
         name: `ICP - ${positionName}`,
@@ -264,7 +286,7 @@ All values must be concise to fit a 1-page document.`;
       },
       media: {
         mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        body: stream,
+        body: Readable.from(buffer),
       },
       fields: 'id, name, mimeType, properties',
     });
