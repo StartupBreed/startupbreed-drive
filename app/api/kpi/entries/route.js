@@ -2,7 +2,7 @@ import { getServerSession } from 'next-auth';
 import { google } from 'googleapis';
 import { authOptions } from '../../auth/[...nextauth]/route';
 
-const SPREADSHEET_ID = process.env.SHEETS_KPI_ID;
+const SPREADSHEET_ID = process.env.SHEETS_KPI_ID || '';
 const RANGE = 'Data Table!A2:F';
 
 function getSheets(accessToken) {
